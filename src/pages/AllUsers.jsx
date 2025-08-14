@@ -4,14 +4,28 @@ import { Smartphone, Mail, MapPin, Clock } from "lucide-react";
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const backendUrl = import.meta.env.VITE_BACKEND_URL; // Use the environment variable for backend URL
 
   useEffect(() => {
     axios
       .get(backendUrl+"/user/allusers")
       .then((res) => setUsers(res.data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err))
+      .finally(() => {
+      setLoading(false); // stop loading no matter what
+    });
+    
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4">
