@@ -11,7 +11,7 @@ const Navbar = () => {
       {/* Left: Brand + Mobile Menu */}
       <div className="flex-1">
         <Link to="/" className="btn btn-ghost normal-case text-xl font-bold">
-          SmartBanker
+          Loan Master
         </Link>
       </div>
 
