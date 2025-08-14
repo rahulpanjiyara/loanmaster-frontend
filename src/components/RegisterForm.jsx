@@ -190,7 +190,7 @@ const RegisterForm = () => {
 
             {/* Submit Button */}
             <div className="form-control sm:col-span-2 mt-4">
-              <button type="submit" className="btn btn-primary w-full">
+              <button type="submit" className="btn btn-primary w-full" disabled={loading}>
                 {loading ? (
             <span className="loading loading-spinner loading-sm"></span>
           ) : (
