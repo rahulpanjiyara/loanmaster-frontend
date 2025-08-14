@@ -82,7 +82,7 @@ const LoginForm = () => {
 
             <div className="form-control mt-4">
               <button type="submit" className="btn btn-primary w-full" disabled={loading}>
-                Login{loading ? (
+                {loading ? (
             <span className="loading loading-spinner loading-sm"></span>
           ) : (
             "Login"
