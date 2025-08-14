@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 
 const LoginForm = () => {
   const [form, setForm] = useState({ mobile: "", password: "" });
+   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useContext(UserContext);
   const backendUrl = import.meta.env.VITE_BACKEND_URL; // Use the environment variable for backend URL
@@ -16,9 +17,11 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     if (localStorage.getItem("token")) {
       toast.error("You are already logged in");
+      setLoading(false); // ✅ reset loading state
       return;
     }
 
@@ -33,7 +36,11 @@ const LoginForm = () => {
       }
     } catch (err) {
       toast.error(err.response?.data?.error || "Login failed");
-    }
+    }finally {
+  setLoading(false);
+}
+    
+    
   };
 
   return (
@@ -74,8 +81,12 @@ const LoginForm = () => {
             </div>
 
             <div className="form-control mt-4">
-              <button type="submit" className="btn btn-primary w-full">
-                Login
+              <button type="submit" className="btn btn-primary w-full" disabled={loading}>
+                Login{loading ? (
+            <span className="loading loading-spinner loading-sm"></span>
+          ) : (
+            "Login"
+          )}
               </button>
             </div>
           </form>
