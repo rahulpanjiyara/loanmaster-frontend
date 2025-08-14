@@ -15,6 +15,7 @@ const RegisterForm = () => {
     brAbm: "",
     brManager: "",
   });
+  const [loading,setLoading] =useState(false);
 
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL; // Use the environment variable for backend URL
@@ -25,6 +26,7 @@ const RegisterForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await axios.post(backendUrl +
         "/user/register",
@@ -36,7 +38,10 @@ const RegisterForm = () => {
       }
     } catch (err) {
       toast.error(err.response?.data?.error || "Registration failed");
+    }finally{
+      setLoading(false);
     }
+      
   };
 
   return (
@@ -186,7 +191,11 @@ const RegisterForm = () => {
             {/* Submit Button */}
             <div className="form-control sm:col-span-2 mt-4">
               <button type="submit" className="btn btn-primary w-full">
-                Register
+                {loading ? (
+            <span className="loading loading-spinner loading-sm"></span>
+          ) : (
+            "Register"
+          )}
               </button>
             </div>
           </form>
