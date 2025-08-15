@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Home = () => {
+const WBBCCLoan = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     // Personal
@@ -206,4 +206,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default WBBCCLoan;
