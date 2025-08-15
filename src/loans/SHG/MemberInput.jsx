@@ -48,6 +48,7 @@ export default function MemberInput({
           className="input input-bordered w-full"
           onChange={handleChange}
         />
+
         <input
           type="text"
           name={spouse}

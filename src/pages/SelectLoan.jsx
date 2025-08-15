@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 export default function SelectLoan() {
   const loans = [
     { title: "SHG Loan", desc: "Quick processing for financing Self Help Groups", path: "/shgloan"    },
-    { title: "Loan Against Deposit", desc: "Need money urgently, without premature withdrwal of FD?" },
+    { title: "Loan Against Deposit", desc: "Need money urgently, without premature withdrwal of FD?",path: "/lodloan" },
     // { title: "Car Loan", desc: "Get your dream vehicle with easy EMIs" },
     // { title: "Education Loan", desc: "Support for higher education expenses" },
     // { title: "Gold Loan", desc: "Instant loan against your gold assets" },

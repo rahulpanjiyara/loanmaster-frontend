@@ -13,7 +13,8 @@ import Unauthorised from "./pages/Unauthorised";
 import AllUsers from "./pages/AllUsers";
 import SelectLoan from "./pages/SelectLoan";
 import SHGLoan from "./loans/SHG/SHGLoan";
-import Preview from "./loans/SHG/Preview";
+import Preview from "./components/Preview";
+import LODLoan from "./loans/LOD/LODLoan";
 
 const App = () => {
   return (
@@ -38,8 +39,8 @@ const App = () => {
           <Route path="/allusers" element={<AllUsers />} />
           <Route path="/selectloan" element={<SelectLoan />} />
           <Route path="/shgloan" element={<SHGLoan />} />
-           <Route path="/preview" element={<Preview />} />
-
+          <Route path="/lodloan" element={<LODLoan />} />
+          <Route path="/preview" element={<Preview />} />
         </Route>
       </Routes>
     </div>
