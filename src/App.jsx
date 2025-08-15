@@ -16,6 +16,8 @@ import SHGLoan from "./loans/SHG/SHGLoan";
 import Preview from "./components/Preview";
 import LODLoan from "./loans/LOD/LODLoan";
 import WBBCCLoan from "./loans/WBBCC/WBBCCLoan";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const App = () => {
   return (
@@ -25,6 +27,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginForm />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword/>} />
         <Route path="/register" element={<RegisterForm />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/profile" element={<ProfilePage />} />

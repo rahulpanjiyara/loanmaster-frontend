@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 const LoginForm = () => {
   const [form, setForm] = useState({ mobile: "", password: "" });
    const [loading, setLoading] = useState(false);
+   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useContext(UserContext);
   const backendUrl = import.meta.env.VITE_BACKEND_URL; // Use the environment variable for backend URL
@@ -32,10 +33,12 @@ const LoginForm = () => {
         toast.success("Login successful!");
         navigate(res.data.userType === "admin" ? "/admin" : "/");
       } else {
-        toast.error(res.data.error || "Login failed");
+        //toast.error(res.data.error || "Login failed");
+         setError(res?.data?.error || "Login failed");  
       }
     } catch (err) {
-      toast.error(err.response?.data?.error || "Login failed");
+      //toast.error(err.response?.data?.error || "Login failed");
+      setError(err.response?.data?.error || "Login failed");  
     }finally {
   setLoading(false);
 }
@@ -48,7 +51,7 @@ const LoginForm = () => {
       <div className="card w-full max-w-sm shadow-2xl bg-base-100">
         <div className="card-body">
           <h1 className="text-3xl font-bold text-center mb-4">Login</h1>
-
+           {error && <p className="mb-2 text-secondary text-center">{error}</p>}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="form-control">
               <label className="label">
@@ -95,6 +98,12 @@ const LoginForm = () => {
             Not registered yet?{" "}
             <Link to="/register" className="link link-primary">
               Register here
+            </Link>
+            
+          </p>
+          <p className="text-center mt-4 text-sm">
+            <Link to="/forgot-password" className="link link-secondary">
+             Forgot Password?
             </Link>
           </p>
         </div>
