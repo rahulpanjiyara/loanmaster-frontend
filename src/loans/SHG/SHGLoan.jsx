@@ -14,7 +14,13 @@ export default function SHGLoan() {
   const [members, setMembers] = useState(
     Array.from({ length: 10 }, (_, i) => ({
       role:
-        i === 0 ? "President" : i === 1 ? "Secretary" : i === 2 ? "Treasurer" : `Member ${i + 1}`,
+        i === 0
+          ? "President"
+          : i === 1
+          ? "Secretary"
+          : i === 2
+          ? "Treasurer"
+          : `Member ${i + 1}`,
       name: "",
       spouse: "",
       dob: "",
@@ -138,20 +144,38 @@ export default function SHGLoan() {
     // STEP 1: Members
     if (step >= 1) {
       members.forEach((m, idx) => {
-        if (!m.name?.trim()) newErrors.push(`Member ${idx + 1}: Name is required`);
-        if (!m.spouse?.trim()) newErrors.push(`Member ${idx + 1}: Spouse name is required`);
-        if (!m.dob) newErrors.push(`Member ${idx + 1}: Date of birth is required`);
+        if (!m.name?.trim())
+          newErrors.push(`Member ${idx + 1}: Name is required`);
+        if (!m.spouse?.trim())
+          newErrors.push(`Member ${idx + 1}: Spouse name is required`);
+        if (!m.dob)
+          newErrors.push(`Member ${idx + 1}: Date of birth is required`);
         if (m.dob && isFutureDate(m.dob))
-          newErrors.push(`Member ${idx + 1}: Date of birth can't be in the future`);
-        if (!m.aadhar || !onlyDigits(m.aadhar) || String(m.aadhar).length !== 12)
+          newErrors.push(
+            `Member ${idx + 1}: Date of birth can't be in the future`
+          );
+        if (
+          !m.aadhar ||
+          !onlyDigits(m.aadhar) ||
+          String(m.aadhar).length !== 12
+        )
           newErrors.push(`Member ${idx + 1}: Aadhaar must be 12 digits`);
         if (!m.mobile || !/^[6-9]\d{9}$/.test(String(m.mobile)))
-          newErrors.push(`Member ${idx + 1}: Mobile must be a valid 10-digit Indian number`);
+          newErrors.push(
+            `Member ${idx + 1}: Mobile must be a valid 10-digit Indian number`
+          );
         if (!m.maritalstatus?.trim())
           newErrors.push(`Member ${idx + 1}: Marital status is required`);
-        if (!m.category?.trim()) newErrors.push(`Member ${idx + 1}: Category is required`);
-        if (!m.sbaccount || !onlyDigits(m.sbaccount) || String(m.sbaccount).length < 6)
-          newErrors.push(`Member ${idx + 1}: SB Account must be numeric (min 6 digits)`);
+        if (!m.category?.trim())
+          newErrors.push(`Member ${idx + 1}: Category is required`);
+        if (
+          !m.sbaccount ||
+          !onlyDigits(m.sbaccount) ||
+          String(m.sbaccount).length < 6
+        )
+          newErrors.push(
+            `Member ${idx + 1}: SB Account must be numeric (min 6 digits)`
+          );
       });
     }
 
@@ -177,7 +201,10 @@ export default function SHGLoan() {
         if (!formData[f]) newErrors.push(`${labelMap[f]} is required`);
       });
 
-      if (formData.pin && (!onlyDigits(formData.pin) || String(formData.pin).length !== 6)) {
+      if (
+        formData.pin &&
+        (!onlyDigits(formData.pin) || String(formData.pin).length !== 6)
+      ) {
         newErrors.push("PIN must be exactly 6 digits");
       }
       if (formData.gradingmarks && toInt(formData.gradingmarks) === null) {
@@ -185,7 +212,8 @@ export default function SHGLoan() {
       }
       if (formData.noofmembers) {
         const nm = toInt(formData.noofmembers);
-        if (nm === null || nm <= 0) newErrors.push("No. of Members must be a positive number");
+        if (nm === null || nm <= 0)
+          newErrors.push("No. of Members must be a positive number");
         else if (nm !== members.length)
           newErrors.push(
             `No. of Members (${nm}) must match Members listed (${members.length})`
@@ -198,7 +226,9 @@ export default function SHGLoan() {
 
     // STEP 3: Bank & Lending
     if (step >= 3) {
-      const isAgriCategory = (formData.shgcategory || "").toUpperCase().includes("A");
+      const isAgriCategory = (formData.shgcategory || "")
+        .toUpperCase()
+        .includes("A");
 
       const alwaysRequired = [
         "shgsbaccount",
@@ -223,7 +253,9 @@ export default function SHGLoan() {
         "lastsanctiondate",
         "lastsanctionlimit",
       ];
-      const extraRequiredWhenNotFirst = isFirstGrading ? [] : notRequiredIfFirst;
+      const extraRequiredWhenNotFirst = isFirstGrading
+        ? []
+        : notRequiredIfFirst;
 
       [...alwaysRequired, ...extraRequiredWhenNotFirst].forEach((f) => {
         if (!formData[f]) newErrors.push(`${labelMap[f]} is required`);
@@ -237,13 +269,21 @@ export default function SHGLoan() {
         "lastsanctionlimit",
         "appliedlimit",
       ].forEach((f) => {
-        if (formData[f] != null && formData[f] !== "" && !onlyDigits(formData[f])) {
+        if (
+          formData[f] != null &&
+          formData[f] !== "" &&
+          !onlyDigits(formData[f])
+        ) {
           newErrors.push(`${labelMap[f]} must be numeric`);
         }
       });
 
       ["reporate", "mclr"].forEach((f) => {
-        if (formData[f] != null && formData[f] !== "" && isNaN(Number(formData[f]))) {
+        if (
+          formData[f] != null &&
+          formData[f] !== "" &&
+          isNaN(Number(formData[f]))
+        ) {
           newErrors.push(`${labelMap[f]} must be a valid number`);
         }
       });
@@ -263,7 +303,9 @@ export default function SHGLoan() {
       if (formData.sanctiondate) {
         const df = daysFromToday(formData.sanctiondate);
         if (df != null && df > 15) {
-          newErrors.push("Sanction Date can't be more than 15 days in the future");
+          newErrors.push(
+            "Sanction Date can't be more than 15 days in the future"
+          );
         }
       }
 
@@ -307,7 +349,10 @@ export default function SHGLoan() {
         shg_data: formData,
         members_data: members,
       };
-      const res = await axios.post(`${backendUrl}/loan/shg-booklet`, dataToSend);
+      const res = await axios.post(
+        `${backendUrl}/loan/shg-booklet`,
+        dataToSend
+      );
       localStorage.setItem("shg_booklet_data", JSON.stringify(dataToSend));
       navigate("/preview", { state: { htmlContent: res.data } });
       if (res.data?.errors?.length) {
@@ -332,21 +377,43 @@ export default function SHGLoan() {
     }
   }, []);
 
-   // --- Clear form ---
-  const handleClear = () => {
+  // --- Clear form ---
+  const handleClear = (e) => {
+    e.preventDefault();
     if (window.confirm("Are you sure you want to clear the form?")) {
       localStorage.removeItem("shg_booklet_data");
-      window.location.reload();
+      //window.location.reload();
+      setFormData({});
+      setMembers(
+        Array.from({ length: 10 }, (_, i) => ({
+          role:
+            i === 0
+              ? "President"
+              : i === 1
+              ? "Secretary"
+              : i === 2
+              ? "Treasurer"
+              : `Member ${i + 1}`,
+          name: "",
+          spouse: "",
+          dob: "",
+          aadhar: "",
+          mobile: "",
+          maritalstatus: "",
+          category: "",
+          sbaccount: "",
+        }))
+      );
+      
+      return;
     }
   };
-
 
   return (
     <main className="p-8 max-w-7xl mx-auto ">
       <h2 className="text-center font-semibold text-secondary text-xl mb-8 tracking-wide select-none">
         SHG CASH CREDIT
       </h2>
-      
 
       {/* Progress bar */}
       <div className="mb-10">
@@ -357,9 +424,21 @@ export default function SHGLoan() {
           />
         </div>
         <div className="flex justify-between mt-2 text-sm font-medium text-gray-700 select-none px-1">
-          <span className={currentStep === 1 ? "text-primary font-semibold" : ""}>Step 1</span>
-          <span className={currentStep === 2 ? "text-primary font-semibold" : ""}>Step 2</span>
-          <span className={currentStep === 3 ? "text-primary font-semibold" : ""}>Step 3</span>
+          <span
+            className={currentStep === 1 ? "text-primary font-semibold" : ""}
+          >
+            Step 1
+          </span>
+          <span
+            className={currentStep === 2 ? "text-primary font-semibold" : ""}
+          >
+            Step 2
+          </span>
+          <span
+            className={currentStep === 3 ? "text-primary font-semibold" : ""}
+          >
+            Step 3
+          </span>
         </div>
       </div>
 
@@ -369,7 +448,9 @@ export default function SHGLoan() {
           <div className="bg-white p-6 rounded-md border border-gray-300 w-full max-w-md">
             {errors.length > 0 ? (
               <>
-                <h3 className="text-red-600 font-semibold mb-3">Validation Errors</h3>
+                <h3 className="text-red-600 font-semibold mb-3">
+                  Validation Errors
+                </h3>
                 <ul className="list-disc list-inside text-red-600 max-h-60 overflow-y-auto space-y-1">
                   {errors.map((err, idx) => (
                     <li key={idx}>{err}</li>
@@ -402,15 +483,28 @@ export default function SHGLoan() {
               <h3 className="text-lg font-medium text-gray-800 select-none">
                 STEP 1/3 - SHG Member Details
               </h3>
+              <div className="join">
+              <button
+                type="submit"
+                className="btn join-item"
+                onClick={handleClear}
+              >
+                Reset
+              </button>
               <button
                 type="button"
                 onClick={addMember}
-                className="btn btn-sm btn-primary"
+                className="btn join-item"
                 disabled={members.length >= 20}
-                title={members.length >= 20 ? "Maximum 20 members allowed" : "Add Member"}
+                title={
+                  members.length >= 20
+                    ? "Maximum 20 members allowed"
+                    : "Add Member"
+                }
               >
                 + Add Member
               </button>
+              </div>
             </div>
 
             <div className="space-y-5 max-h-[500px] overflow-y-auto pr-2">
@@ -450,18 +544,102 @@ export default function SHGLoan() {
               STEP 2/3 - SHG Group & Address Details
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <ColumnInput label="Name of SHG" type="text" placeholder="Name of SHG" name="shgname" value={formData.shgname || ""} handleChange={handleChange} />
-              <ColumnInput label="Grading Marks" type="number" placeholder="Grading Marks" name="gradingmarks" value={formData.gradingmarks || ""} handleChange={handleChange} />
-              <ColumnInput label="Date of Formation" type="date" placeholder="Date of Formation" name="shgdof" value={formData.shgdof || ""} handleChange={handleChange} />
-              <ColumnInput label="No. of Members" type="number" placeholder="No. of Members" name="noofmembers" value={formData.noofmembers || ""} handleChange={handleChange} />
-              <ColumnInput label="Village/Town" type="text" placeholder="Village/Town" name="villtown" value={formData.villtown || ""} handleChange={handleChange} />
-              <ColumnInput label="Post Office" type="text" placeholder="Post Office" name="po" value={formData.po || ""} handleChange={handleChange} />
-              <ColumnInput label="Police Station" type="text" placeholder="Police Station" name="ps" value={formData.ps || ""} handleChange={handleChange} />
-              <ColumnInput label="Gram Panchayat/Ward No." type="text" placeholder="Gram Panchayat/Ward No." name="gpward" value={formData.gpward || ""} handleChange={handleChange} />
-              <ColumnInput label="Block/Municipality" type="text" placeholder="Block/Municipality" name="blockmunicipality" value={formData.blockmunicipality || ""} handleChange={handleChange} />
-              <ColumnInput label="District" type="text" placeholder="District" name="district" value={formData.district || ""} handleChange={handleChange} />
-              <ColumnInput label="State" type="text" placeholder="State" name="state" value={formData.state || ""} handleChange={handleChange} />
-              <ColumnInput label="PIN" type="number" placeholder="PIN" name="pin" value={formData.pin || ""} handleChange={handleChange} />
+              <ColumnInput
+                label="Name of SHG"
+                type="text"
+                placeholder="Name of SHG"
+                name="shgname"
+                value={formData.shgname || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="Grading Marks"
+                type="number"
+                placeholder="Grading Marks"
+                name="gradingmarks"
+                value={formData.gradingmarks || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="Date of Formation"
+                type="date"
+                placeholder="Date of Formation"
+                name="shgdof"
+                value={formData.shgdof || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="No. of Members"
+                type="number"
+                placeholder="No. of Members"
+                name="noofmembers"
+                value={formData.noofmembers || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="Village/Town"
+                type="text"
+                placeholder="Village/Town"
+                name="villtown"
+                value={formData.villtown || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="Post Office"
+                type="text"
+                placeholder="Post Office"
+                name="po"
+                value={formData.po || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="Police Station"
+                type="text"
+                placeholder="Police Station"
+                name="ps"
+                value={formData.ps || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="Gram Panchayat/Ward No."
+                type="text"
+                placeholder="Gram Panchayat/Ward No."
+                name="gpward"
+                value={formData.gpward || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="Block/Municipality"
+                type="text"
+                placeholder="Block/Municipality"
+                name="blockmunicipality"
+                value={formData.blockmunicipality || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="District"
+                type="text"
+                placeholder="District"
+                name="district"
+                value={formData.district || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="State"
+                type="text"
+                placeholder="State"
+                name="state"
+                value={formData.state || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="PIN"
+                type="number"
+                placeholder="PIN"
+                name="pin"
+                value={formData.pin || ""}
+                handleChange={handleChange}
+              />
               <ColumnInput
                 label="SHG Category"
                 type="select"
@@ -499,23 +677,88 @@ export default function SHGLoan() {
               STEP 3/3 - Bank & Lending Details
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <ColumnInput label="SB Account No." type="number" placeholder="SB Account No." name="shgsbaccount" value={formData.shgsbaccount || ""} handleChange={handleChange} />
-              <ColumnInput label="SB Opening Date" type="date" placeholder="SB Opening Date" name="sbopeningdate" value={formData.sbopeningdate || ""} handleChange={handleChange} />
-              <ColumnInput label="SB Balance" type="number" placeholder="SB Balance" name="sbbalance" value={formData.sbbalance || ""} handleChange={handleChange} />
+              <ColumnInput
+                label="SB Account No."
+                type="number"
+                placeholder="SB Account No."
+                name="shgsbaccount"
+                value={formData.shgsbaccount || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="SB Opening Date"
+                type="date"
+                placeholder="SB Opening Date"
+                name="sbopeningdate"
+                value={formData.sbopeningdate || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="SB Balance"
+                type="number"
+                placeholder="SB Balance"
+                name="sbbalance"
+                value={formData.sbbalance || ""}
+                handleChange={handleChange}
+              />
 
               {/* Conditionally not required if 1st Grading */}
-              <ColumnInput label="Date of First Lending" type="date" placeholder="Date of First Lending" name="dateoffirstlending" value={formData.dateoffirstlending || ""} handleChange={handleChange} />
-              <ColumnInput label="CC Account No." type="number" placeholder="CC Account No." name="ccaccount" value={formData.ccaccount || ""} handleChange={handleChange} />
-              <ColumnInput label="CC Outstanding" type="number" placeholder="CC Outstanding" name="ccoutstanding" value={formData.ccoutstanding || ""} handleChange={handleChange} />
-              <ColumnInput label="Last Sanction Date" type="date" placeholder="Last Sanction Date" name="lastsanctiondate" value={formData.lastsanctiondate || ""} handleChange={handleChange} />
-              <ColumnInput label="Last Sanction Limit" type="number" placeholder="Last Sanction Limit" name="lastsanctionlimit" value={formData.lastsanctionlimit || ""} handleChange={handleChange} />
+              <ColumnInput
+                label="Date of First Lending"
+                type="date"
+                placeholder="Date of First Lending"
+                name="dateoffirstlending"
+                value={formData.dateoffirstlending || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="CC Account No."
+                type="number"
+                placeholder="CC Account No."
+                name="ccaccount"
+                value={formData.ccaccount || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="CC Outstanding"
+                type="number"
+                placeholder="CC Outstanding"
+                name="ccoutstanding"
+                value={formData.ccoutstanding || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="Last Sanction Date"
+                type="date"
+                placeholder="Last Sanction Date"
+                name="lastsanctiondate"
+                value={formData.lastsanctiondate || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="Last Sanction Limit"
+                type="number"
+                placeholder="Last Sanction Limit"
+                name="lastsanctionlimit"
+                value={formData.lastsanctionlimit || ""}
+                handleChange={handleChange}
+              />
 
-              <ColumnInput label="Applied Limit" type="number" placeholder="Applied Limit" name="appliedlimit" value={formData.appliedlimit || ""} handleChange={handleChange} />
+              <ColumnInput
+                label="Applied Limit"
+                type="number"
+                placeholder="Applied Limit"
+                name="appliedlimit"
+                value={formData.appliedlimit || ""}
+                handleChange={handleChange}
+              />
 
               {/* Grading */}
               <div className="form-control w-full">
                 <label className="label">
-                  <span className="label-text text-sm font-medium text-gray-700">Grading</span>
+                  <span className="label-text text-sm font-medium text-gray-700">
+                    Grading
+                  </span>
                 </label>
                 <select
                   name="grading"
@@ -528,7 +771,14 @@ export default function SHGLoan() {
                   </option>
                   {Array.from({ length: 10 }, (_, i) => {
                     const num = i + 1;
-                    const suffix = num === 1 ? "st" : num === 2 ? "nd" : num === 3 ? "rd" : "th";
+                    const suffix =
+                      num === 1
+                        ? "st"
+                        : num === 2
+                        ? "nd"
+                        : num === 3
+                        ? "rd"
+                        : "th";
                     return (
                       <option key={num} value={`${num}${suffix} Grading`}>
                         {num}
@@ -539,10 +789,38 @@ export default function SHGLoan() {
                 </select>
               </div>
 
-              <ColumnInput label="Application Date" type="date" placeholder="Application Date" name="applicationdate" value={formData.applicationdate || ""} handleChange={handleChange} />
-              <ColumnInput label="Sanction Date" type="date" placeholder="Sanction Date" name="sanctiondate" value={formData.sanctiondate || ""} handleChange={handleChange} />
-              <ColumnInput label="Repo Rate" type="number" placeholder="Repo Rate" name="reporate" value={formData.reporate || ""} handleChange={handleChange} />
-              <ColumnInput label="MCLR" type="number" placeholder="MCLR" name="mclr" value={formData.mclr || ""} handleChange={handleChange} />
+              <ColumnInput
+                label="Application Date"
+                type="date"
+                placeholder="Application Date"
+                name="applicationdate"
+                value={formData.applicationdate || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="Sanction Date"
+                type="date"
+                placeholder="Sanction Date"
+                name="sanctiondate"
+                value={formData.sanctiondate || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="Repo Rate"
+                type="number"
+                placeholder="Repo Rate"
+                name="reporate"
+                value={formData.reporate || ""}
+                handleChange={handleChange}
+              />
+              <ColumnInput
+                label="MCLR"
+                type="number"
+                placeholder="MCLR"
+                name="mclr"
+                value={formData.mclr || ""}
+                handleChange={handleChange}
+              />
             </div>
           </section>
         )}
@@ -550,26 +828,27 @@ export default function SHGLoan() {
         {/* Actions */}
         <div className="flex justify-center gap-4 mt-10">
           {currentStep > 1 && (
-            <button type="button" className="btn btn-outline btn-primary px-8" onClick={decreaseStep}>
+            <button
+              type="button"
+              className="btn btn-outline btn-primary px-8"
+              onClick={decreaseStep}
+            >
               ← Back
             </button>
           )}
           {currentStep < 3 && (
-            <button type="button" className="btn btn-primary px-8" onClick={increaseStep}>
+            <button
+              type="button"
+              className="btn btn-primary px-8"
+              onClick={increaseStep}
+            >
               Next →
             </button>
           )}
           {currentStep === 3 && (
-            <div className="flex gap-4">
-
-            <button type="submit" className="btn btn-warning px-10" onClick={handleClear}>
-              Clear
-            </button>
             <button type="submit" className="btn btn-success px-10">
               Submit
             </button>
-            </div>
-            
           )}
         </div>
       </form>

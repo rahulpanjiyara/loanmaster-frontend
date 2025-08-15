@@ -12,6 +12,7 @@ const LODLoan = () => {
 
   // Load saved data from localStorage
   const savedData = JSON.parse(localStorage.getItem("lod_booklet_data")) || {};
+  const [loading, setLoading] = useState(false);
 
   const [sbAcc, setSbAcc] = useState(savedData.loan_data?.sbAcc || "");
   const [address, setAddress] = useState(savedData.loan_data?.address || "");
@@ -138,7 +139,7 @@ const LODLoan = () => {
         .filter((d) => d && !isNaN(d.getTime()));
       const latestMatDate =
         validMatDates.length > 0
-          ? validMatDates.sort((a, b) => a-b)[0]
+          ? validMatDates.sort((a, b) => a - b)[0]
           : null;
 
       if (latestMatDate && latestMatDate >= sanDateObj) {
@@ -226,24 +227,54 @@ const LODLoan = () => {
     }
 
     try {
+      setLoading(true); // ✅ Start loader
       const dataToSend = {
         user_data: user,
         borrowers_data: borrowers,
         deposits_data: deposits,
         loan_data: { sbAcc, address, ...loanDetails },
       };
-      const res = await axios.post(`${backendUrl}/loan/lod-booklet`, dataToSend);
+      const res = await axios.post(
+        `${backendUrl}/loan/lod-booklet`,
+        dataToSend
+      );
       navigate("/preview", { state: { htmlContent: res.data } });
     } catch (err) {
       console.error(err);
+      toast.error("Error submitting data. Please try again.");
+    } finally {
+      setLoading(false); // ✅ Stop loader
     }
   };
 
   // --- Clear form ---
-  const handleClear = () => {
+  const handleClear = (e) => {
+    e.preventDefault();
     if (window.confirm("Are you sure you want to clear the form?")) {
       localStorage.removeItem("lod_booklet_data");
-      window.location.reload();
+      setSbAcc("");
+      setAddress("");
+      setBorrowers([{ name: "", father: "", mobile: "", dob: "" }]);
+      setDeposits([
+        {
+          depositorName: "",
+          accNo: "",
+          inttRate: "",
+          termVal: "",
+          matVal: "",
+          issueDate: "",
+          matDate: "",
+        },
+      ]);
+      setLoanDetails({
+        elgLoan: "",
+        appLoan: "",
+        loanType: "Overdraft",
+        spread: "",
+        appDate: "",
+        sanDate: "",
+        tenure: "",
+      });
     }
   };
 
@@ -251,259 +282,282 @@ const LODLoan = () => {
     <div className="p-4">
       <main className="max-w-7xl mx-auto space-y-8">
         <fieldset className="fieldset bg-base-100 border-base-300 rounded-box border p-4">
-  <legend className="fieldset-legend"><h1 className="text-center text-xl text-secondary">Loan Against Deposit</h1></legend>
-        
+          <legend className="fieldset-legend">
+            <h1 className="text-center text-xl text-secondary">
+              Loan Against Deposit
+            </h1>
+          </legend>
 
-        {/* Account Details */}
-        <section className="border p-4 rounded-md">
-          <h3 className="text-lg font-semibold mb-4">Account Details</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">SB Account No.</span>
-              </label>
-              <input
-                type="number"
-                className="input input-bordered w-full"
-                value={sbAcc}
-                onChange={(e) => setSbAcc(e.target.value)}
-              />
-              {errors.sbAcc && <span className="text-red-500 text-sm">{errors.sbAcc}</span>}
+          {/* Account Details */}
+          <section className="border p-4 rounded-md">
+            <h3 className="text-lg font-semibold mb-4">Account Details</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text">SB Account No.</span>
+                </label>
+                <input
+                  type="number"
+                  className="input input-bordered w-full"
+                  value={sbAcc}
+                  onChange={(e) => setSbAcc(e.target.value)}
+                />
+                {errors.sbAcc && (
+                  <span className="text-red-500 text-sm">{errors.sbAcc}</span>
+                )}
+              </div>
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text">Address</span>
+                </label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                />
+                {errors.address && (
+                  <span className="text-red-500 text-sm">{errors.address}</span>
+                )}
+              </div>
             </div>
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Address</span>
-              </label>
-              <input
-                type="text"
-                className="input input-bordered w-full"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-              {errors.address && <span className="text-red-500 text-sm">{errors.address}</span>}
-            </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Borrowers Section */}
-        <section className="border p-4 rounded-md">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-            <h3 className="text-lg font-semibold">Borrower(s) Details</h3>
-            <button
-              className="btn btn-sm btn-primary flex items-center gap-1"
-              onClick={addBorrower}
-            >
-              <Plus className="w-4 h-4" /> Add
-            </button>
-          </div>
-
-          {borrowers.map((b, i) => (
-            <div
-              key={i}
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4 items-end relative"
-            >
-              {[
-                { field: "name", label: "Name", type: "text" },
-                { field: "father", label: "Father's Name", type: "text" },
-                { field: "mobile", label: "Mobile No.", type: "number" },
-                { field: "dob", label: "Date of Birth", type: "date" },
-              ].map((item) => (
-                <div key={item.field} className="form-control w-full">
-                  <label className="label">
-                    <span className="label-text">{item.label}</span>
-                  </label>
-                  <input
-                    type={item.type}
-                    className="input input-bordered w-full"
-                    value={b[item.field]}
-                    onChange={(e) =>
-                      handleBorrowerChange(i, item.field, e.target.value)
-                    }
-                  />
-                  {errors.borrowers[i] && errors.borrowers[i][item.field] && (
-                    <span className="text-red-500 text-sm">{errors.borrowers[i][item.field]}</span>
-                  )}
-                </div>
-              ))}
-
-              {borrowers.length > 1 && (
-                <button
-                  className="absolute top-0 right-0 text-red-500 hover:text-red-700"
-                  onClick={() => deleteBorrower(i)}
-                  title="Delete Borrower"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-          ))}
-        </section>
-
-        {/* Deposits Section */}
-        <section className="border p-4 rounded-md">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
-            <h3 className="text-lg font-semibold">Deposit(s) Details</h3>
-            <button
-              className="btn btn-sm btn-primary flex items-center gap-1"
-              onClick={addDeposit}
-            >
-              <Plus className="w-4 h-4" /> Add
-            </button>
-          </div>
-
-          {deposits.map((d, i) => (
-            <div
-              key={i}
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4 items-end relative"
-            >
-              {[
-                { field: "depositorName", label: "Depositor Name", type: "text" },
-                { field: "accNo", label: "FD/RD Acc No.", type: "number" },
-                { field: "inttRate", label: "Intt. Rate", type: "number" },
-                { field: "termVal", label: "Term Value", type: "number" },
-                { field: "matVal", label: "Maturity Value", type: "number" },
-                { field: "issueDate", label: "Issue Date", type: "date" },
-                { field: "matDate", label: "Maturity Date", type: "date" },
-              ].map((item) => (
-                <div key={item.field} className="form-control w-full">
-                  <label className="label">
-                    <span className="label-text">{item.label}</span>
-                  </label>
-                  <input
-                    type={item.type}
-                    className="input input-bordered w-full"
-                    value={d[item.field]}
-                    onChange={(e) =>
-                      handleDepositChange(i, item.field, e.target.value)
-                    }
-                  />
-                  {errors.deposits[i] && errors.deposits[i][item.field] && (
-                    <span className="text-red-500 text-sm">{errors.deposits[i][item.field]}</span>
-                  )}
-                </div>
-              ))}
-
-              {deposits.length > 1 && (
-                <button
-                  className="absolute top-0 right-0 text-red-500 hover:text-red-700"
-                  onClick={() => deleteDeposit(i)}
-                  title="Delete Deposit"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-          ))}
-        </section>
-
-        {/* Loan Details Section */}
-        <section className="border p-4 rounded-md">
-          <h3 className="text-lg font-semibold mb-4">Loan Details</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Eligible Loan (Rs.)</span>
-              </label>
-              <input
-                type="number"
-                className="input input-bordered w-full"
-                value={loanDetails.elgLoan}
-                disabled
-              />
-            </div>
-
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Applied Loan (Rs.)</span>
-              </label>
-              <input
-                type="number"
-                className="input input-bordered w-full"
-                value={loanDetails.appLoan}
-                onChange={(e) => handleLoanChange("appLoan", e.target.value)}
-              />
-            </div>
-
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Loan Type</span>
-              </label>
-              <select
-                className="select select-bordered w-full"
-                value={loanDetails.loanType}
-                onChange={(e) => handleLoanChange("loanType", e.target.value)}
+          {/* Borrowers Section */}
+          <section className="border p-4 rounded-md">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+              <h3 className="text-lg font-semibold">Borrower(s) Details</h3>
+              <button
+                className="btn btn-sm btn-primary flex items-center gap-1"
+                onClick={addBorrower}
               >
-                {["Overdraft", "Term Loan"].map((opt) => (
-                  <option key={opt} value={opt}>
-                    {opt}
-                  </option>
+                <Plus className="w-4 h-4" /> Add
+              </button>
+            </div>
+
+            {borrowers.map((b, i) => (
+              <div
+                key={i}
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4 items-end relative"
+              >
+                {[
+                  { field: "name", label: "Name", type: "text" },
+                  { field: "father", label: "Father's Name", type: "text" },
+                  { field: "mobile", label: "Mobile No.", type: "number" },
+                  { field: "dob", label: "Date of Birth", type: "date" },
+                ].map((item) => (
+                  <div key={item.field} className="form-control w-full">
+                    <label className="label">
+                      <span className="label-text">{item.label}</span>
+                    </label>
+                    <input
+                      type={item.type}
+                      className="input input-bordered w-full"
+                      value={b[item.field]}
+                      onChange={(e) =>
+                        handleBorrowerChange(i, item.field, e.target.value)
+                      }
+                    />
+                    {errors.borrowers[i] && errors.borrowers[i][item.field] && (
+                      <span className="text-red-500 text-sm">
+                        {errors.borrowers[i][item.field]}
+                      </span>
+                    )}
+                  </div>
                 ))}
-              </select>
+
+                {borrowers.length > 1 && (
+                  <button
+                    className="absolute top-0 right-0 text-red-500 hover:text-red-700"
+                    onClick={() => deleteBorrower(i)}
+                    title="Delete Borrower"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </section>
+
+          {/* Deposits Section */}
+          <section className="border p-4 rounded-md">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
+              <h3 className="text-lg font-semibold">Deposit(s) Details</h3>
+              <button
+                className="btn btn-sm btn-primary flex items-center gap-1"
+                onClick={addDeposit}
+              >
+                <Plus className="w-4 h-4" /> Add
+              </button>
             </div>
 
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Spread</span>
-              </label>
-              <input
-                type="number"
-                className="input input-bordered w-full"
-                value={loanDetails.spread}
-                onChange={(e) => handleLoanChange("spread", e.target.value)}
-              />
-            </div>
+            {deposits.map((d, i) => (
+              <div
+                key={i}
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-4 items-end relative"
+              >
+                {[
+                  {
+                    field: "depositorName",
+                    label: "Depositor Name",
+                    type: "text",
+                  },
+                  { field: "accNo", label: "FD/RD Acc No.", type: "number" },
+                  { field: "inttRate", label: "Intt. Rate", type: "number" },
+                  { field: "termVal", label: "Term Value", type: "number" },
+                  { field: "matVal", label: "Maturity Value", type: "number" },
+                  { field: "issueDate", label: "Issue Date", type: "date" },
+                  { field: "matDate", label: "Maturity Date", type: "date" },
+                ].map((item) => (
+                  <div key={item.field} className="form-control w-full">
+                    <label className="label">
+                      <span className="label-text">{item.label}</span>
+                    </label>
+                    <input
+                      type={item.type}
+                      className="input input-bordered w-full"
+                      value={d[item.field]}
+                      onChange={(e) =>
+                        handleDepositChange(i, item.field, e.target.value)
+                      }
+                    />
+                    {errors.deposits[i] && errors.deposits[i][item.field] && (
+                      <span className="text-red-500 text-sm">
+                        {errors.deposits[i][item.field]}
+                      </span>
+                    )}
+                  </div>
+                ))}
 
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Application Date</span>
-              </label>
-              <input
-                type="date"
-                className="input input-bordered w-full"
-                value={loanDetails.appDate}
-                onChange={(e) => handleLoanChange("appDate", e.target.value)}
-              />
-            </div>
+                {deposits.length > 1 && (
+                  <button
+                    className="absolute top-0 right-0 text-red-500 hover:text-red-700"
+                    onClick={() => deleteDeposit(i)}
+                    title="Delete Deposit"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </section>
 
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Sanction Date</span>
-              </label>
-              <input
-                type="date"
-                className="input input-bordered w-full"
-                value={loanDetails.sanDate}
-                onChange={(e) => handleLoanChange("sanDate", e.target.value)}
-              />
-            </div>
+          {/* Loan Details Section */}
+          <section className="border p-4 rounded-md">
+            <h3 className="text-lg font-semibold mb-4">Loan Details</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text">Eligible Loan (Rs.)</span>
+                </label>
+                <input
+                  type="number"
+                  className="input input-bordered w-full"
+                  value={loanDetails.elgLoan}
+                  disabled
+                />
+              </div>
 
-            <div className="form-control w-full">
-              <label className="label">
-                <span className="label-text">Tenure (Months)</span>
-              </label>
-              <input
-                type="number"
-                className="input input-bordered w-full"
-                value={loanDetails.tenure}
-                disabled
-              />
-            </div>
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text">Applied Loan (Rs.)</span>
+                </label>
+                <input
+                  type="number"
+                  className="input input-bordered w-full"
+                  value={loanDetails.appLoan}
+                  onChange={(e) => handleLoanChange("appLoan", e.target.value)}
+                />
+              </div>
 
-            {errors.loanDetails && (
-              <span className="text-red-500 text-sm col-span-full">{errors.loanDetails}</span>
-            )}
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text">Loan Type</span>
+                </label>
+                <select
+                  className="select select-bordered w-full"
+                  value={loanDetails.loanType}
+                  onChange={(e) => handleLoanChange("loanType", e.target.value)}
+                >
+                  {["Overdraft", "Term Loan"].map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text">Spread</span>
+                </label>
+                <input
+                  type="number"
+                  className="input input-bordered w-full"
+                  value={loanDetails.spread}
+                  onChange={(e) => handleLoanChange("spread", e.target.value)}
+                />
+              </div>
+
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text">Application Date</span>
+                </label>
+                <input
+                  type="date"
+                  className="input input-bordered w-full"
+                  value={loanDetails.appDate}
+                  onChange={(e) => handleLoanChange("appDate", e.target.value)}
+                />
+              </div>
+
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text">Sanction Date</span>
+                </label>
+                <input
+                  type="date"
+                  className="input input-bordered w-full"
+                  value={loanDetails.sanDate}
+                  onChange={(e) => handleLoanChange("sanDate", e.target.value)}
+                />
+              </div>
+
+              <div className="form-control w-full">
+                <label className="label">
+                  <span className="label-text">Tenure (Months)</span>
+                </label>
+                <input
+                  type="number"
+                  className="input input-bordered w-full"
+                  value={loanDetails.tenure}
+                  disabled
+                />
+              </div>
+
+              {errors.loanDetails && (
+                <span className="text-red-500 text-sm col-span-full">
+                  {errors.loanDetails}
+                </span>
+              )}
+            </div>
+          </section>
+
+          {/* Buttons */}
+          <div className="flex justify-between mt-4">
+            <button className="btn btn-secondary px-8" onClick={handleClear}>
+              Clear Form
+            </button>
+            <button className="btn btn-primary px-8" onClick={handleSubmit} disabled={loading}>
+              {loading ? (
+                <>
+                  <span className="loader mr-2"></span> Submitting...
+                </>
+              ) : (
+                "Submit Details"
+              )}
+            </button>
           </div>
-        </section>
-
-        {/* Buttons */}
-        <div className="flex justify-between mt-4">
-          <button className="btn btn-secondary px-8" onClick={handleClear}>
-            Clear Form
-          </button>
-          <button className="btn btn-primary px-8" onClick={handleSubmit}>
-            Submit Details
-          </button>
-        </div>
         </fieldset>
       </main>
     </div>
