@@ -2,15 +2,18 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
 export default function ResetPassword() {
   const { token } = useParams();
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 
   const handleSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     try {
       await axios.post(backendUrl+`/user/reset-password/${token}`, { password });
@@ -18,6 +21,8 @@ export default function ResetPassword() {
       setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       setMessage(err.response?.data?.message || "Error resetting password");
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -35,8 +40,12 @@ export default function ResetPassword() {
             className="input input-bordered w-full"
             required
           />
-          <button type="submit" className="btn btn-primary w-full">
-            Reset Password
+          <button type="submit" className="btn btn-primary w-full" disabled={loading}>
+           {loading ? (
+            <span className="loading loading-spinner loading-sm"></span>
+          ) : (
+            "Reset Password"
+          )}
           </button>
         </form>
       </div>

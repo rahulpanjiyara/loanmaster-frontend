@@ -1,19 +1,24 @@
 import { useState } from "react";
 import axios from "axios";
 
+
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await axios.post(backendUrl+ "/user/forgot-password", { email });
       setMessage(res.data.message);
     } catch (err) {
       setMessage(err.response?.data?.message || "Error sending reset link");
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -31,8 +36,12 @@ export default function ForgotPassword() {
             className="input input-bordered w-full"
             required
           />
-          <button type="submit" className="btn btn-primary w-full">
-            Send Reset Link
+          <button type="submit" className="btn btn-primary w-full" disabled={loading}>
+           {loading ? (
+            <span className="loading loading-spinner loading-sm"></span>
+          ) : (
+            "Send Reset Link"
+          )}
           </button>
         </form>
       </div>
