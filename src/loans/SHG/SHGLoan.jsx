@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../contexts/userContext";
 
 export default function SHGLoan() {
+  const [loading, setLoading] = useState(false);
   const backendUrl = import.meta.env.VITE_BACKEND_URL; // env-based backend
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
@@ -344,6 +345,7 @@ export default function SHGLoan() {
     }
     try {
       setErrors([]);
+      setLoading(true);
       const dataToSend = {
         user_data: user,
         shg_data: formData,
@@ -364,6 +366,8 @@ export default function SHGLoan() {
     } catch (err) {
       console.error(err);
       setErrors(["Something went wrong while submitting. Please try again."]);
+    }finally {
+      setLoading(false);
     }
   };
 
@@ -846,8 +850,14 @@ export default function SHGLoan() {
             </button>
           )}
           {currentStep === 3 && (
-            <button type="submit" className="btn btn-success px-10">
-              Submit
+            <button type="submit" className="btn btn-success px-10" disabled={loading}>
+             {loading ? (
+                <>
+                  <span className="loader mr-2"></span> Submitting...
+                </>
+              ) : (
+                "Submit"
+              )}
             </button>
           )}
         </div>
