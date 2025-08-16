@@ -9,6 +9,7 @@ export default function ColumnInput({
   handleChange,
   className = "",
   label = null,
+  disabled=false,
 }) {
   return (
     <div className="form-control w-full">
@@ -44,6 +45,7 @@ export default function ColumnInput({
           onChange={handleChange}
           className="input w-full"
           aria-label={placeholder}
+          disabled={disabled}
         />
       )}
     </div>

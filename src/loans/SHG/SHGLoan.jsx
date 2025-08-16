@@ -487,10 +487,10 @@ export default function SHGLoan() {
               <h3 className="text-lg font-medium text-gray-800 select-none">
                 STEP 1/3 - SHG Member Details
               </h3>
-              <div className="join">
+              <div className="join join-vertical sm:join-horizontal">
               <button
                 type="submit"
-                className="btn join-item"
+                className="btn btn-sm join-item"
                 onClick={handleClear}
               >
                 Reset
@@ -498,7 +498,7 @@ export default function SHGLoan() {
               <button
                 type="button"
                 onClick={addMember}
-                className="btn join-item"
+                className="btn btn-sm join-item"
                 disabled={members.length >= 20}
                 title={
                   members.length >= 20
@@ -652,9 +652,10 @@ export default function SHGLoan() {
                 value={formData.shgcategory || ""}
                 options={[
                   { value: "NA", label: "SHG CC-NRLM-AGRI" },
-                  { value: "NNA", label: "SHG CC-NON-NRLM-AGRI" },
+                  // { value: "NNA", label: "SHG CC-NON-NRLM-AGRI" },
                   { value: "SNA", label: "SHG CC-SHAKTI-NRLM-AGRI" },
-                  { value: "SNNA", label: "SHG CC-SHAKTI-NON-NRLM-AGRI" },
+                  // { value: "SNNA", label: "SHG CC-SHAKTI-NON-NRLM-AGRI" },
+                  // { value: "NM", label: "SHG CC-NRLM-NON-AGRI" },
                 ]}
                 handleChange={handleChange}
               />
@@ -816,6 +817,8 @@ export default function SHGLoan() {
                 name="reporate"
                 value={formData.reporate || ""}
                 handleChange={handleChange}
+                disabled={formData.shgcategory!=="NM"}
+                
               />
               <ColumnInput
                 label="MCLR"
@@ -824,6 +827,7 @@ export default function SHGLoan() {
                 name="mclr"
                 value={formData.mclr || ""}
                 handleChange={handleChange}
+                 disabled={formData.shgcategory==="NM"}
               />
             </div>
           </section>

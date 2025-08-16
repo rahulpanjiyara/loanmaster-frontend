@@ -75,7 +75,7 @@ const ProfilePage = () => {
               { label: "Branch Code", name: "brCode" },
               { label: "Branch ABM", name: "brAbm" },
               { label: "Branch Manager", name: "brManager" },
-              { label: "User Type", name: "userType", disabled: true },
+              // { label: "User Type", name: "userType", disabled: true },
             ].map((field, idx) => (
               <div
                 key={idx}
@@ -97,7 +97,25 @@ const ProfilePage = () => {
               </div>
             ))}
 
-            <div className="form-control sm:col-span-2">
+             <div className="form-control">
+              <label className="label">
+                <span className="label-text">BM Designation</span>
+              </label>
+              <select
+                name="BMDesignation"
+                value={form.BMDesignation || ""}
+                onChange={handleChange}
+                disabled={!editMode}
+                className="select select-bordered w-full"
+              >
+                <option value="Branch Manager">Branch Manager - Scale I</option>
+                <option value="Manager">Manager - Scale II</option>
+                <option value="Sr. Manager">Sr. Manager - Scale III</option>
+                <option value="Chief Manager">Chief Manager - Scale IV</option>
+              </select>
+            </div>
+
+            {/* <div className="form-control ">
               <label className="label">
                 <span className="label-text">User Status</span>
               </label>
@@ -111,7 +129,7 @@ const ProfilePage = () => {
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </select>
-            </div>
+            </div> */}
 
             {/* Buttons */}
             <div className="sm:col-span-2 flex flex-col sm:flex-row justify-end gap-3 mt-4">

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Smartphone, Mail, MapPin, Clock } from "lucide-react";
 import { motion } from "framer-motion";
+import { formatIndianDate } from "../utils/formatDate";
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
@@ -25,20 +26,20 @@ const AllUsers = () => {
       {/* User Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {loading
-          // Show skeleton loaders while loading
-            ? Array.from({ length: users.length || 12 }).map((_, idx) => (
-                <div
-                  key={idx}
-                  className="card bg-base-200 shadow animate-pulse h-48"
-                >
-                  <div className="card-body space-y-3">
-                    <div className="h-5 bg-base-300 rounded w-2/3"></div>
-                    <div className="h-4 bg-base-300 rounded w-1/2"></div>
-                    <div className="h-4 bg-base-300 rounded w-1/3"></div>
-                    <div className="h-4 bg-base-300 rounded w-1/4"></div>
-                  </div>
+          ? // Show skeleton loaders while loading
+            Array.from({ length: users.length || 12 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="card bg-base-200 shadow animate-pulse h-48"
+              >
+                <div className="card-body space-y-3">
+                  <div className="h-5 bg-base-300 rounded w-2/3"></div>
+                  <div className="h-4 bg-base-300 rounded w-1/2"></div>
+                  <div className="h-4 bg-base-300 rounded w-1/3"></div>
+                  <div className="h-4 bg-base-300 rounded w-1/4"></div>
                 </div>
-              ))
+              </div>
+            ))
           : // Show users with fade-in animation
             users.map((user, index) => (
               <motion.div
@@ -84,9 +85,8 @@ const AllUsers = () => {
                   {/* Last Login */}
                   <div className="flex items-center gap-2 text-sm">
                     <Clock size={16} className="text-warning" />
-                    {user.lastLogin
-                      ? new Date(user.lastLogin).toLocaleString("en-IN")
-                      : "Never"}
+                    <span className="font-medium">Last Login:</span>{" "}
+                    {formatIndianDate(user.lastLogin) || "Never"}
                   </div>
 
                   {/* Total Logins */}

@@ -30,7 +30,7 @@ export default function ResetPassword() {
     <div className="flex justify-center items-center h-screen bg-base-200">
       <div className="card w-96 bg-base-100 shadow-xl p-6">
         <h2 className="text-xl font-bold mb-4">Reset Password</h2>
-        {message && <p className="mb-4 text-red-500">{message}</p>}
+        {message && <p className="mb-2 text-success">{message}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="password"

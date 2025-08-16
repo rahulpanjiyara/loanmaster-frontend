@@ -544,11 +544,11 @@ const LODLoan = () => {
           </section>
 
           {/* Buttons */}
-          <div className="flex justify-between mt-4">
-            <button className="btn btn-secondary px-8" onClick={handleClear}>
-              Clear Form
+          <div className="join flex justify-end mt-6">
+            <button className="btn  join-item" onClick={handleClear}>
+              Reset
             </button>
-            <button className="btn btn-primary px-8" onClick={handleSubmit} disabled={loading}>
+            <button className="btn btn-secondary join-item" onClick={handleSubmit} disabled={loading}>
               {loading ? (
                 <>
                   <span className="loader mr-2"></span> Submitting...
