@@ -98,11 +98,11 @@ export default function MemberInput({
           <option value="" disabled>
             Select Marital Status
           </option>
-          <option value="single">Single</option>
-          <option value="married">Married</option>
-          <option value="divorced">Divorced</option>
-          <option value="seperated">Separated</option>
-          <option value="widowed">Widowed</option>
+          <option value="Single">Single</option>
+          <option value="Married">Married</option>
+          <option value="Divorced">Divorced</option>
+          <option value="Separated">Separated</option>
+          <option value="Widowed">Widowed</option>
         </select>
         <select
           name={category}
@@ -114,12 +114,12 @@ export default function MemberInput({
           <option value="" disabled>
             Select Category
           </option>
-          <option value="general">General</option>
-          <option value="obc">OBC</option>
-          <option value="sc">SC</option>
-          <option value="st">ST</option>
-          <option value="ews">EWS</option>
-          <option value="minority">Minority</option>
+          <option value="General">General</option>
+          <option value="OBC">OBC</option>
+          <option value="SC">SC</option>
+          <option value="ST">ST</option>
+          <option value="EWS">EWS</option>
+          <option value="Minority">Minority</option>
         </select>
 
         <input
