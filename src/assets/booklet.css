@@ -1,0 +1,71 @@
+.booklet-wrapper .rotate {
+  rotate: 90deg;
+}
+
+.booklet-wrapper .navbar {
+  display: none;
+}
+
+.booklet-wrapper {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 10.5pt;
+  line-height: 1.5;
+}
+
+.booklet-wrapper h1,
+.booklet-wrapper h2,
+.booklet-wrapper h3,
+.booklet-wrapper h4,
+.booklet-wrapper h5,
+.booklet-wrapper h6 {
+  font-family: 'Calibri', Arial, sans-serif;
+  font-weight: bold;
+}
+
+.booklet-wrapper .mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10pt;
+}
+
+.booklet-wrapper .mini-table th,
+.booklet-wrapper .mini-table td {
+  padding: 2px 3px;
+  word-break: break-word;
+}
+
+/* Screen styles */
+@media screen {
+  .booklet-wrapper {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+    width: 90%;
+    margin: 0.5in auto;
+    padding: .5in;
+    box-shadow: 2px 8px 50px 5px rgba(0, 0, 0, 0.5);
+  }
+
+  .booklet-wrapper table,
+  .booklet-wrapper th,
+  .booklet-wrapper td {
+    border: 1px solid grey;
+  }
+}
+
+/* Print styles */
+@media print {
+  @page {
+    size: A4;
+    margin: 0.5in 0.5in 1in 0.75in;
+  }
+
+  .booklet-wrapper table,
+  .booklet-wrapper th,
+  .booklet-wrapper td {
+    border: 1px solid grey;
+  }
+
+  .booklet-wrapper .noprint {
+    display: none;
+  }
+}
