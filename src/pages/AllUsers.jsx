@@ -71,10 +71,10 @@ const AllUsers = () => {
                   </div>
 
                   {/* Email */}
-                  <div className="flex items-center gap-2 text-sm">
+                  {/* <div className="flex items-center gap-2 text-sm">
                     <Mail size={16} className="text-secondary" />
                     {user.email || "N/A"}
-                  </div>
+                  </div> */}
 
                   {/* Branch */}
                   <div className="flex items-center gap-2 text-sm">
