@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useMutation } from "@tanstack/react-query";
+import { registerUser } from "../services/userService";
 
 const RegisterForm = () => {
   const [form, setForm] = useState({
@@ -14,31 +15,34 @@ const RegisterForm = () => {
     brCode: "",
     brAbm: "",
     brManager: "",
-    BMDesignation:"",
+    BMDesignation: "",
   });
-  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const backendUrl = import.meta.env.VITE_BACKEND_URL; // Use the environment variable for backend URL
+
+  // ✅ React Query mutation
+  const mutation = useMutation({
+    mutationFn: registerUser,
+    onSuccess: (data) => {
+      if (data.success) {
+        toast.success(data.message || "Registration successful!");
+        navigate("/login");
+      } else {
+        toast.error(data.message || "Something went wrong");
+      }
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.error || "Registration failed");
+    },
+  });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-    try {
-      const response = await axios.post(backendUrl + "/user/register", form);
-      if (response.data.success === true) {
-        toast.success(response.data.message || "Registration successful!");
-        navigate("/login");
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.error || "Registration failed");
-    } finally {
-      setLoading(false);
-    }
+    mutation.mutate(form);
   };
 
   return (
@@ -55,9 +59,7 @@ const RegisterForm = () => {
           >
             {/* Name */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Full Name</span>
-              </label>
+              <label className="label">Full Name</label>
               <input
                 type="text"
                 name="name"
@@ -70,9 +72,7 @@ const RegisterForm = () => {
 
             {/* Mobile */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Mobile</span>
-              </label>
+              <label className="label">Mobile</label>
               <input
                 type="tel"
                 name="mobile"
@@ -85,9 +85,7 @@ const RegisterForm = () => {
 
             {/* Email */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Email</span>
-              </label>
+              <label className="label">Email</label>
               <input
                 type="email"
                 name="email"
@@ -100,9 +98,7 @@ const RegisterForm = () => {
 
             {/* Password */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Password</span>
-              </label>
+              <label className="label">Password</label>
               <input
                 type="password"
                 name="password"
@@ -115,9 +111,7 @@ const RegisterForm = () => {
 
             {/* Branch Name */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Branch Name</span>
-              </label>
+              <label className="label">Branch Name</label>
               <input
                 name="brName"
                 value={form.brName}
@@ -128,9 +122,7 @@ const RegisterForm = () => {
 
             {/* Branch Place */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Branch Place</span>
-              </label>
+              <label className="label">Branch Place</label>
               <input
                 name="brPlace"
                 value={form.brPlace}
@@ -141,9 +133,7 @@ const RegisterForm = () => {
 
             {/* Branch Code */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Branch Code</span>
-              </label>
+              <label className="label">Branch Code</label>
               <input
                 name="brCode"
                 value={form.brCode}
@@ -154,9 +144,7 @@ const RegisterForm = () => {
 
             {/* Branch ABM */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Branch ABM</span>
-              </label>
+              <label className="label">Branch ABM</label>
               <input
                 name="brAbm"
                 value={form.brAbm}
@@ -167,9 +155,7 @@ const RegisterForm = () => {
 
             {/* Branch Manager */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">Branch Manager</span>
-              </label>
+              <label className="label">Branch Manager</label>
               <input
                 name="brManager"
                 value={form.brManager}
@@ -180,9 +166,7 @@ const RegisterForm = () => {
 
             {/* BM Designation */}
             <div className="form-control">
-              <label className="label">
-                <span className="label-text">BM Designation</span>
-              </label>
+              <label className="label">BM Designation</label>
               <select
                 name="BMDesignation"
                 value={form.BMDesignation}
@@ -202,9 +186,9 @@ const RegisterForm = () => {
               <button
                 type="submit"
                 className="btn btn-primary w-full"
-                disabled={loading}
+                disabled={mutation.isLoading}
               >
-                {loading ? (
+                {mutation.isLoading ? (
                   <span className="loading loading-spinner loading-sm"></span>
                 ) : (
                   "Register"

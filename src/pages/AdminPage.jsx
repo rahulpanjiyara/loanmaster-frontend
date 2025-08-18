@@ -1,36 +1,42 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import axios from "axios";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import LoanForm from "../components/LoanForm";
 import UserCard from "../components/UserCard";
 
 const AdminPage = () => {
-  const [users, setUsers] = useState([]);
-  const backendUrl = import.meta.env.VITE_BACKEND_URL; // Use the environment variable for backend URL
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const queryClient = useQueryClient();
 
-  const fetchUsers = async () => {
-    try {
-      const res = await axios.get(backendUrl+"/admin/users");
-      setUsers(res.data);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-  };
+  // Fetch users using React Query
+  const { data: users = [], isLoading, isError } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const res = await axios.get(`${backendUrl}/admin/users`);
+      return res.data;
+    },
+  });
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const updateStatus = async (userId, userStatus) => {
-    try {
-      await axios.put(backendUrl+`/admin/user/${userId}/status`, {
+  // Mutation to update user status
+  const mutation = useMutation({
+    mutationFn: async ({ userId, userStatus }) => {
+      await axios.put(`${backendUrl}/admin/user/${userId}/status`, {
         userStatus,
       });
-      fetchUsers(); // Refresh after update
-    } catch (error) {
-      console.error("Error updating status:", error);
-    }
+    },
+    onSuccess: () => {
+      // Refetch users after updating status
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+
+  const updateStatus = (userId, userStatus) => {
+    mutation.mutate({ userId, userStatus });
   };
+
+  if (isLoading) return <p className="text-center">Loading users...</p>;
+  if (isError) return <p className="text-center text-red-500">Error fetching users.</p>;
 
   return (
     <div className="p-4 space-y-4 max-w-7xl mx-auto">

@@ -38,7 +38,7 @@ const LODLoan = () => {
   const [loanDetails, setLoanDetails] = useState(
     savedData.loan_data || {
       sbAcc: "",
-    address: "",
+      address: "",
       elgLoan: "",
       appLoan: "",
       loanType: "Overdraft",
@@ -161,7 +161,7 @@ const LODLoan = () => {
 
   // --- Validation functions ---
   const validateAccountDetails = () => {
-    const { sbAcc,address } = loanDetails;
+    const { sbAcc, address } = loanDetails;
     let sbError = "";
     let addrError = "";
     if (!sbAcc) sbError = "SB account is required";
@@ -200,7 +200,8 @@ const LODLoan = () => {
   };
 
   const validateLoanDetails = () => {
-    const { elgLoan, appLoan, spread, appDate, sanDate,sbAcc,address } = loanDetails;
+    const { elgLoan, appLoan, spread, appDate, sanDate, sbAcc, address } =
+      loanDetails;
     let loanError = "";
     // if (!sbAcc) loanError = "SB account is required";
     // else if (!address) loanError = "Address is required";
@@ -224,7 +225,7 @@ const LODLoan = () => {
     const validDeposits = validateDeposits();
     const validLoan = validateLoanDetails();
 
-    if (!validAccount||!validBorrowers || !validDeposits || !validLoan) {
+    if (!validAccount || !validBorrowers || !validDeposits || !validLoan) {
       toast.error("Please fix validation errors before submitting");
       return;
     }
@@ -255,7 +256,7 @@ const LODLoan = () => {
     e.preventDefault();
     if (window.confirm("Are you sure you want to clear the form?")) {
       localStorage.removeItem("lod_booklet_data");
-      
+
       setBorrowers([{ name: "", father: "", mobile: "", dob: "" }]);
       setDeposits([
         {
@@ -270,7 +271,7 @@ const LODLoan = () => {
       ]);
       setLoanDetails({
         sbAcc: "",
-    address: "",
+        address: "",
         elgLoan: "",
         appLoan: "",
         loanType: "Overdraft",
@@ -306,9 +307,9 @@ const LODLoan = () => {
                   value={loanDetails.sbAcc}
                   onChange={(e) => handleLoanChange("sbAcc", e.target.value)}
                 />
-                 {errors.sbAcc && (
+                {errors.sbAcc && (
                   <span className="text-red-500 text-sm">{errors.sbAcc}</span>
-                )} 
+                )}
               </div>
               <div className="form-control w-full">
                 <label className="label">
@@ -317,12 +318,12 @@ const LODLoan = () => {
                 <input
                   type="text"
                   className="input input-bordered w-full"
-                   value={loanDetails.address}
+                  value={loanDetails.address}
                   onChange={(e) => handleLoanChange("address", e.target.value)}
                 />
-               {errors.address && (
+                {errors.address && (
                   <span className="text-red-500 text-sm">{errors.address}</span>
-                )} 
+                )}
               </div>
             </div>
           </section>
@@ -552,7 +553,11 @@ const LODLoan = () => {
             <button className="btn  join-item" onClick={handleClear}>
               Reset
             </button>
-            <button className="btn btn-secondary join-item" onClick={handleSubmit} disabled={loading}>
+            <button
+              className="btn btn-secondary join-item"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
               {loading ? (
                 <>
                   <span className="loader mr-2"></span> Submitting...
