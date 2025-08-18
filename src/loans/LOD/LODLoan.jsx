@@ -160,14 +160,14 @@ const LODLoan = () => {
   }, [deposits, loanDetails.sanDate]);
 
   // --- Validation functions ---
-  const validateAccountDetails = () => {
-    let sbError = "";
-    let addrError = "";
-    if (!sbAcc) sbError = "SB account is required";
-    if (!address) addrError = "Address is required";
-    setErrors((prev) => ({ ...prev, sbAcc: sbError, address: addrError }));
-    return !sbError && !addrError;
-  };
+  // const validateAccountDetails = () => {
+  //   let sbError = "";
+  //   let addrError = "";
+  //   if (!sbAcc) sbError = "SB account is required";
+  //   if (!address) addrError = "Address is required";
+  //   setErrors((prev) => ({ ...prev, sbAcc: sbError, address: addrError }));
+  //   return !sbError && !addrError;
+  // };
 
   const validateBorrowers = () => {
     const errs = borrowers.map((b) => ({
@@ -303,9 +303,9 @@ const LODLoan = () => {
                   value={loanDetails.sbAcc}
                   onChange={(e) => handleLoanChange("sbAcc", e.target.value)}
                 />
-                {errors.sbAcc && (
+{/*                 {errors.sbAcc && (
                   <span className="text-red-500 text-sm">{errors.sbAcc}</span>
-                )}
+                )} */}
               </div>
               <div className="form-control w-full">
                 <label className="label">
@@ -317,9 +317,9 @@ const LODLoan = () => {
                    value={loanDetails.address}
                   onChange={(e) => handleLoanChange("address", e.target.value)}
                 />
-                {errors.address && (
+{/*                 {errors.address && (
                   <span className="text-red-500 text-sm">{errors.address}</span>
-                )}
+                )} */}
               </div>
             </div>
           </section>
