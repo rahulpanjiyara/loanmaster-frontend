@@ -160,14 +160,15 @@ const LODLoan = () => {
   }, [deposits, loanDetails.sanDate]);
 
   // --- Validation functions ---
-  // const validateAccountDetails = () => {
-  //   let sbError = "";
-  //   let addrError = "";
-  //   if (!sbAcc) sbError = "SB account is required";
-  //   if (!address) addrError = "Address is required";
-  //   setErrors((prev) => ({ ...prev, sbAcc: sbError, address: addrError }));
-  //   return !sbError && !addrError;
-  // };
+  const validateAccountDetails = () => {
+    const { sbAcc,address } = loanDetails;
+    let sbError = "";
+    let addrError = "";
+    if (!sbAcc) sbError = "SB account is required";
+    if (!address) addrError = "Address is required";
+    setErrors((prev) => ({ ...prev, sbAcc: sbError, address: addrError }));
+    return !sbError && !addrError;
+  };
 
   const validateBorrowers = () => {
     const errs = borrowers.map((b) => ({
@@ -201,9 +202,9 @@ const LODLoan = () => {
   const validateLoanDetails = () => {
     const { elgLoan, appLoan, spread, appDate, sanDate,sbAcc,address } = loanDetails;
     let loanError = "";
-    if (!sbAcc) loanError = "SB account is required";
-    else if (!address) loanError = "Address is required";
-    else if (!appLoan) loanError = "Applied loan is required";
+    // if (!sbAcc) loanError = "SB account is required";
+    // else if (!address) loanError = "Address is required";
+    if (!appLoan) loanError = "Applied loan is required";
     else if (parseFloat(appLoan) > parseFloat(elgLoan))
       loanError = "Applied loan cannot exceed eligible loan";
     else if (!spread) loanError = "Spread is required";
@@ -218,12 +219,12 @@ const LODLoan = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    //const validAccount = validateAccountDetails();
+    const validAccount = validateAccountDetails();
     const validBorrowers = validateBorrowers();
     const validDeposits = validateDeposits();
     const validLoan = validateLoanDetails();
 
-    if (!validBorrowers || !validDeposits || !validLoan) {
+    if (!validAccount||!validBorrowers || !validDeposits || !validLoan) {
       toast.error("Please fix validation errors before submitting");
       return;
     }
@@ -305,9 +306,9 @@ const LODLoan = () => {
                   value={loanDetails.sbAcc}
                   onChange={(e) => handleLoanChange("sbAcc", e.target.value)}
                 />
-{/*                 {errors.sbAcc && (
+                 {errors.sbAcc && (
                   <span className="text-red-500 text-sm">{errors.sbAcc}</span>
-                )} */}
+                )} 
               </div>
               <div className="form-control w-full">
                 <label className="label">
@@ -319,9 +320,9 @@ const LODLoan = () => {
                    value={loanDetails.address}
                   onChange={(e) => handleLoanChange("address", e.target.value)}
                 />
-{/*                 {errors.address && (
+               {errors.address && (
                   <span className="text-red-500 text-sm">{errors.address}</span>
-                )} */}
+                )} 
               </div>
             </div>
           </section>
