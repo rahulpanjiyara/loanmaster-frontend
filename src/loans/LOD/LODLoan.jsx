@@ -216,7 +216,7 @@ const LODLoan = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const validAccount = validateAccountDetails();
+    //const validAccount = validateAccountDetails();
     const validBorrowers = validateBorrowers();
     const validDeposits = validateDeposits();
     const validLoan = validateLoanDetails();
