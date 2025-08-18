@@ -199,9 +199,11 @@ const LODLoan = () => {
   };
 
   const validateLoanDetails = () => {
-    const { elgLoan, appLoan, spread, appDate, sanDate } = loanDetails;
+    const { elgLoan, appLoan, spread, appDate, sanDate,sbAcc,address } = loanDetails;
     let loanError = "";
-    if (!appLoan) loanError = "Applied loan is required";
+    if (!sbAcc) loanError = "SB account is required";
+    else if (!address) loanError = "Address is required";
+    else if (!appLoan) loanError = "Applied loan is required";
     else if (parseFloat(appLoan) > parseFloat(elgLoan))
       loanError = "Applied loan cannot exceed eligible loan";
     else if (!spread) loanError = "Spread is required";
@@ -221,7 +223,7 @@ const LODLoan = () => {
     const validDeposits = validateDeposits();
     const validLoan = validateLoanDetails();
 
-    if (!validAccount || !validBorrowers || !validDeposits || !validLoan) {
+    if (!validBorrowers || !validDeposits || !validLoan) {
       toast.error("Please fix validation errors before submitting");
       return;
     }
