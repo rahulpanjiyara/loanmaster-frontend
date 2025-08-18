@@ -14,8 +14,8 @@ const LODLoan = () => {
   const savedData = JSON.parse(localStorage.getItem("lod_booklet_data")) || {};
   const [loading, setLoading] = useState(false);
 
-  const [sbAcc, setSbAcc] = useState(savedData.loan_data?.sbAcc || "");
-  const [address, setAddress] = useState(savedData.loan_data?.address || "");
+  // const [sbAcc, setSbAcc] = useState(savedData.loan_data?.sbAcc || "");
+  // const [address, setAddress] = useState(savedData.loan_data?.address || "");
 
   const [borrowers, setBorrowers] = useState(
     savedData.borrowers_data || [{ name: "", father: "", mobile: "", dob: "" }]
@@ -37,6 +37,8 @@ const LODLoan = () => {
 
   const [loanDetails, setLoanDetails] = useState(
     savedData.loan_data || {
+      sbAcc: "",
+    address: "",
       elgLoan: "",
       appLoan: "",
       loanType: "Overdraft",
@@ -48,8 +50,6 @@ const LODLoan = () => {
   );
 
   const [errors, setErrors] = useState({
-    sbAcc: "",
-    address: "",
     borrowers: [],
     deposits: [],
     loanDetails: "",
@@ -61,10 +61,10 @@ const LODLoan = () => {
       user_data: user,
       borrowers_data: borrowers,
       deposits_data: deposits,
-      loan_data: { sbAcc, address, ...loanDetails },
+      loan_data: loanDetails,
     };
     localStorage.setItem("lod_booklet_data", JSON.stringify(dataToSave));
-  }, [sbAcc, address, borrowers, deposits, loanDetails, user]);
+  }, [borrowers, deposits, loanDetails, user]);
 
   // --- Borrowers handlers ---
   const handleBorrowerChange = (index, field, value) => {
@@ -232,7 +232,7 @@ const LODLoan = () => {
         user_data: user,
         borrowers_data: borrowers,
         deposits_data: deposits,
-        loan_data: { sbAcc, address, ...loanDetails },
+        loan_data: loanDetails,
       };
       const res = await axios.post(
         `${backendUrl}/loan/lod-booklet`,
@@ -252,8 +252,7 @@ const LODLoan = () => {
     e.preventDefault();
     if (window.confirm("Are you sure you want to clear the form?")) {
       localStorage.removeItem("lod_booklet_data");
-      setSbAcc("");
-      setAddress("");
+      
       setBorrowers([{ name: "", father: "", mobile: "", dob: "" }]);
       setDeposits([
         {
@@ -267,6 +266,8 @@ const LODLoan = () => {
         },
       ]);
       setLoanDetails({
+        sbAcc: "",
+    address: "",
         elgLoan: "",
         appLoan: "",
         loanType: "Overdraft",
@@ -299,8 +300,8 @@ const LODLoan = () => {
                 <input
                   type="number"
                   className="input input-bordered w-full"
-                  value={sbAcc}
-                  onChange={(e) => setSbAcc(e.target.value)}
+                  value={loanDetails.sbAcc}
+                  onChange={(e) => handleLoanChange("sbAcc", e.target.value)}
                 />
                 {errors.sbAcc && (
                   <span className="text-red-500 text-sm">{errors.sbAcc}</span>
@@ -313,8 +314,8 @@ const LODLoan = () => {
                 <input
                   type="text"
                   className="input input-bordered w-full"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
+                   value={loanDetails.address}
+                  onChange={(e) => handleLoanChange("address", e.target.value)}
                 />
                 {errors.address && (
                   <span className="text-red-500 text-sm">{errors.address}</span>
