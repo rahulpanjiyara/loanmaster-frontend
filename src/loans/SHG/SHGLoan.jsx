@@ -357,7 +357,15 @@ export default function SHGLoan() {
       };
       const res = await axios.post(
         `${backendUrl}/loan/shg-booklet`,
-        dataToSend
+        dataToSend,
+        {
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setProgress(percentCompleted);
+          },
+        }
       );
       localStorage.setItem("shg_booklet_data", JSON.stringify(dataToSend));
       navigate("/preview", { state: { htmlContent: res.data } });
