@@ -336,53 +336,55 @@ export default function SHGLoan() {
   };
   const decreaseStep = () => setCurrentStep((prev) => prev - 1);
 
-  // ---- submit ----
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const validationErrors = validateForm(3);
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors);
-      setValidated(false);
-      return;
-    }
-    setLoading(true);
-    setProgress(0);
-    try {
-      setErrors([]);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const validationErrors = validateForm(3);
+  if (validationErrors.length > 0) {
+    setErrors(validationErrors);
+    setValidated(false);
+    return;
+  }
 
-      const dataToSend = {
-        user_data: user,
-        shg_data: formData,
-        members_data: members,
-      };
-      const res = await axios.post(
-        `${backendUrl}/loan/shg-booklet`,
-        dataToSend,
-        {
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total
-            );
-            setProgress(percentCompleted);
-          },
-        }
-      );
-      localStorage.setItem("shg_booklet_data", JSON.stringify(dataToSend));
+  setLoading(true);
+  setProgress(0);
+
+  try {
+    setErrors([]);
+
+    const dataToSend = {
+      user_data: user,
+      shg_data: formData,
+      members_data: members,
+    };
+
+    const res = await axios.post(`${backendUrl}/loan/shg-booklet`, dataToSend, {
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        );
+        setProgress(percentCompleted);
+      },
+    });
+
+    setProgress(100); // mark complete
+    localStorage.setItem("shg_booklet_data", JSON.stringify(dataToSend));
+
+    if (res.data?.errors?.length) {
+      setErrors(res.data.errors);
+      setValidated(false);
+    } else {
+      setValidated(true);
       navigate("/preview", { state: { htmlContent: res.data } });
-      if (res.data?.errors?.length) {
-        setErrors(res.data.errors);
-        setValidated(false);
-      } else {
-        setValidated(true);
-      }
-    } catch (err) {
-      console.error(err);
-      setErrors(["Something went wrong while submitting. Please try again."]);
-    } finally {
-      setLoading(false);
-      setProgress(0);
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setErrors(["Something went wrong while submitting. Please try again."]);
+  } finally {
+    setLoading(false);
+    // optionally reset after a delay if you want
+    setTimeout(() => setProgress(0), 500);
+  }
+};
 
   // ---- load saved ----
   useEffect(() => {
