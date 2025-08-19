@@ -336,8 +336,59 @@ export default function SHGLoan() {
   };
   const decreaseStep = () => setCurrentStep((prev) => prev - 1);
 
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+//   const validationErrors = validateForm(3);
+//   if (validationErrors.length > 0) {
+//     setErrors(validationErrors);
+//     setValidated(false);
+//     return;
+//   }
+
+//   setLoading(true);
+//   setProgress(0);
+
+//   try {
+//     setErrors([]);
+
+//     const dataToSend = {
+//       user_data: user,
+//       shg_data: formData,
+//       members_data: members,
+//     };
+
+//     const res = await axios.post(`${backendUrl}/loan/shg-booklet`, dataToSend, {
+//       onUploadProgress: (progressEvent) => {
+//         const percentCompleted = Math.round(
+//           (progressEvent.loaded * 100) / progressEvent.total
+//         );
+//         setProgress(percentCompleted);
+//       },
+//     });
+
+//     setProgress(100); // mark complete
+//     localStorage.setItem("shg_booklet_data", JSON.stringify(dataToSend));
+
+//     if (res.data?.errors?.length) {
+//       setErrors(res.data.errors);
+//       setValidated(false);
+//     } else {
+//       setValidated(true);
+//       navigate("/preview", { state: { htmlContent: res.data } });
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     setErrors(["Something went wrong while submitting. Please try again."]);
+//   } finally {
+//     setLoading(false);
+//     // optionally reset after a delay if you want
+//     setTimeout(() => setProgress(0), 500);
+//   }
+// };
+
 const handleSubmit = async (e) => {
   e.preventDefault();
+
   const validationErrors = validateForm(3);
   if (validationErrors.length > 0) {
     setErrors(validationErrors);
@@ -347,26 +398,31 @@ const handleSubmit = async (e) => {
 
   setLoading(true);
   setProgress(0);
+  setErrors([]);
+
+  const dataToSend = {
+    user_data: user,
+    shg_data: formData,
+    members_data: members,
+  };
+
+  // Simulate smooth progress
+  let interval = setInterval(() => {
+    setProgress((prev) => {
+      if (prev >= 95) {
+        clearInterval(interval); // stop before complete
+        return prev;
+      }
+      return prev + 5; // increment smoothly
+    });
+  }, 100);
 
   try {
-    setErrors([]);
+    const res = await axios.post(`${backendUrl}/loan/shg-booklet`, dataToSend);
 
-    const dataToSend = {
-      user_data: user,
-      shg_data: formData,
-      members_data: members,
-    };
-
-    const res = await axios.post(`${backendUrl}/loan/shg-booklet`, dataToSend, {
-      onUploadProgress: (progressEvent) => {
-        const percentCompleted = Math.round(
-          (progressEvent.loaded * 100) / progressEvent.total
-        );
-        setProgress(percentCompleted);
-      },
-    });
-
+    clearInterval(interval); // stop interval on completion
     setProgress(100); // mark complete
+
     localStorage.setItem("shg_booklet_data", JSON.stringify(dataToSend));
 
     if (res.data?.errors?.length) {
@@ -381,10 +437,11 @@ const handleSubmit = async (e) => {
     setErrors(["Something went wrong while submitting. Please try again."]);
   } finally {
     setLoading(false);
-    // optionally reset after a delay if you want
+    // Reset progress after a short delay for UX
     setTimeout(() => setProgress(0), 500);
   }
 };
+
 
   // ---- load saved ----
   useEffect(() => {
