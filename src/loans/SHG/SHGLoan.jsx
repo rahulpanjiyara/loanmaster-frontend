@@ -8,6 +8,8 @@ import { UserContext } from "../../contexts/userContext";
 
 export default function SHGLoan() {
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+
   const backendUrl = import.meta.env.VITE_BACKEND_URL; // env-based backend
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
@@ -343,9 +345,11 @@ export default function SHGLoan() {
       setValidated(false);
       return;
     }
+    setLoading(true);
+    setProgress(0);
     try {
       setErrors([]);
-      setLoading(true);
+
       const dataToSend = {
         user_data: user,
         shg_data: formData,
@@ -366,8 +370,9 @@ export default function SHGLoan() {
     } catch (err) {
       console.error(err);
       setErrors(["Something went wrong while submitting. Please try again."]);
-    }finally {
+    } finally {
       setLoading(false);
+      setProgress(0);
     }
   };
 
@@ -408,7 +413,7 @@ export default function SHGLoan() {
           sbaccount: "",
         }))
       );
-      
+
       return;
     }
   };
@@ -488,26 +493,26 @@ export default function SHGLoan() {
                 STEP 1/3 - SHG Member Details
               </h3>
               <div className="join join-vertical sm:join-horizontal">
-              <button
-                type="submit"
-                className="btn btn-sm join-item"
-                onClick={handleClear}
-              >
-                Reset
-              </button>
-              <button
-                type="button"
-                onClick={addMember}
-                className="btn btn-sm join-item"
-                disabled={members.length >= 20}
-                title={
-                  members.length >= 20
-                    ? "Maximum 20 members allowed"
-                    : "Add Member"
-                }
-              >
-                + Add Member
-              </button>
+                <button
+                  type="submit"
+                  className="btn btn-sm join-item"
+                  onClick={handleClear}
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  onClick={addMember}
+                  className="btn btn-sm join-item"
+                  disabled={members.length >= 20}
+                  title={
+                    members.length >= 20
+                      ? "Maximum 20 members allowed"
+                      : "Add Member"
+                  }
+                >
+                  + Add Member
+                </button>
               </div>
             </div>
 
@@ -817,8 +822,7 @@ export default function SHGLoan() {
                 name="reporate"
                 value={formData.reporate || ""}
                 handleChange={handleChange}
-                disabled={formData.shgcategory!=="NM"}
-                
+                disabled={formData.shgcategory !== "NM"}
               />
               <ColumnInput
                 label="MCLR"
@@ -827,7 +831,7 @@ export default function SHGLoan() {
                 name="mclr"
                 value={formData.mclr || ""}
                 handleChange={handleChange}
-                 disabled={formData.shgcategory==="NM"}
+                disabled={formData.shgcategory === "NM"}
               />
             </div>
           </section>
@@ -854,11 +858,25 @@ export default function SHGLoan() {
             </button>
           )}
           {currentStep === 3 && (
-            <button type="submit" className="btn btn-success px-10" disabled={loading}>
-             {loading ? (
-                <>
-                  <span className="loader mr-2"></span> Submitting...
-                </>
+            <button
+              type="submit"
+              className="btn btn-success px-10"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex items-center gap-2 w-full">
+                  <span>Submitting...</span>
+                  <div className="w-full bg-base-300 rounded h-2 overflow-hidden">
+                    <div
+                      className="bg-success h-2"
+                      style={{
+                        width: `${progress}%`,
+                        transition: "width 0.2s",
+                      }}
+                    />
+                  </div>
+                  <span className="ml-2">{progress}%</span>
+                </div>
               ) : (
                 "Submit"
               )}
