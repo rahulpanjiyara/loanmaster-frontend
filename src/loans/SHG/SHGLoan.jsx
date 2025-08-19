@@ -932,7 +932,7 @@ const handleSubmit = async (e) => {
             >
               {loading ? (
                 <div className="flex items-center gap-2 w-full">
-                  <span>Generating booklet...</span>
+                  <span>Generating...</span>
                   <div className="w-full bg-base-300 rounded h-2 overflow-hidden">
                     <div
                       className="bg-success h-2"
