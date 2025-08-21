@@ -1,57 +1,72 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { UserContext } from "../contexts/userContext";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+import { UserContext } from "../contexts/userContext";
+
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+const loginUser = async (form) => {
+  const res = await axios.post(`${backendUrl}/user/login`, form);
+  return res.data;
+};
 
 const LoginForm = () => {
   const [form, setForm] = useState({ mobile: "", password: "" });
-   const [loading, setLoading] = useState(false);
-   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useContext(UserContext);
-  const backendUrl = import.meta.env.VITE_BACKEND_URL; // Use the environment variable for backend URL
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: loginUser,
+    onSuccess: (data) => {
+      if (data.token) {
+        // Save token in context + localStorage
+        login(data.token);
+
+        // ✅ Decode token payload
+        const decoded = jwtDecode(data.token);
+        console.log("Decoded JWT:", decoded);
+
+        toast.success("Login successful!");
+
+        // ✅ Navigate based on role
+        navigate(decoded.type === "admin" ? "/admin" : "/");
+      } else {
+        toast.error(data?.error || "Login failed");
+      }
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.error || "Login failed");
+    },
+  });
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+ const handleSubmit = (e) => {
+  e.preventDefault();
 
-    if (localStorage.getItem("token")) {
-      toast.error("You are already logged in");
-      setLoading(false); // ✅ reset loading state
-      return;
-    }
+  if (!form || !form.mobile || !form.password) {
+    toast.error("Please enter mobile and password");
+    return;
+  }
 
-    try {
-      const res = await axios.post(backendUrl+"/user/login", form);
-      if (res.data.token) {
-        login(res.data.token);
-        toast.success("Login successful!");
-        navigate(res.data.userType === "admin" ? "/admin" : "/");
-      } else {
-        //toast.error(res.data.error || "Login failed");
-         setError(res?.data?.error || "Login failed");  
-      }
-    } catch (err) {
-      //toast.error(err.response?.data?.error || "Login failed");
-      setError(err.response?.data?.error || "Login failed");  
-    }finally {
-  setLoading(false);
-}
-    
-    
-  };
+  console.log("Submitting form:", form); // 🔍 Debug log
+  mutate(form);
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-base-200 px-4">
       <div className="card w-full max-w-sm shadow-2xl bg-base-100">
         <div className="card-body">
           <h1 className="text-3xl font-bold text-center mb-4">Login</h1>
-           {error && <p className="mb-2 text-secondary text-center">{error}</p>}
+
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="form-control">
               <label className="label">
@@ -60,9 +75,9 @@ const LoginForm = () => {
               <input
                 type="text"
                 name="mobile"
-                placeholder="Enter your mobile"
                 value={form.mobile}
                 onChange={handleChange}
+                placeholder="Enter your mobile"
                 className="input input-bordered w-full"
                 required
               />
@@ -75,21 +90,21 @@ const LoginForm = () => {
               <input
                 type="password"
                 name="password"
-                placeholder="Enter your password"
                 value={form.password}
                 onChange={handleChange}
+                placeholder="Enter your password"
                 className="input input-bordered w-full"
                 required
               />
             </div>
 
             <div className="form-control mt-4">
-              <button type="submit" className="btn btn-primary w-full" disabled={loading}>
-                {loading ? (
-            <span className="loading loading-spinner loading-sm"></span>
-          ) : (
-            "Login"
-          )}
+              <button type="submit" className="btn btn-primary w-full" disabled={isPending}>
+                {isPending ? (
+                  <span className="loading loading-spinner loading-sm"></span>
+                ) : (
+                  "Login"
+                )}
               </button>
             </div>
           </form>
@@ -99,11 +114,10 @@ const LoginForm = () => {
             <Link to="/register" className="link link-primary">
               Register here
             </Link>
-            
           </p>
           <p className="text-center mt-4 text-sm">
             <Link to="/forgot-password" className="link link-secondary">
-             Forgot Password?
+              Forgot Password?
             </Link>
           </p>
         </div>
