@@ -336,112 +336,114 @@ export default function SHGLoan() {
   };
   const decreaseStep = () => setCurrentStep((prev) => prev - 1);
 
-// const handleSubmit = async (e) => {
-//   e.preventDefault();
-//   const validationErrors = validateForm(3);
-//   if (validationErrors.length > 0) {
-//     setErrors(validationErrors);
-//     setValidated(false);
-//     return;
-//   }
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   const validationErrors = validateForm(3);
+  //   if (validationErrors.length > 0) {
+  //     setErrors(validationErrors);
+  //     setValidated(false);
+  //     return;
+  //   }
 
-//   setLoading(true);
-//   setProgress(0);
+  //   setLoading(true);
+  //   setProgress(0);
 
-//   try {
-//     setErrors([]);
+  //   try {
+  //     setErrors([]);
 
-//     const dataToSend = {
-//       user_data: user,
-//       shg_data: formData,
-//       members_data: members,
-//     };
+  //     const dataToSend = {
+  //       user_data: user,
+  //       shg_data: formData,
+  //       members_data: members,
+  //     };
 
-//     const res = await axios.post(`${backendUrl}/loan/shg-booklet`, dataToSend, {
-//       onUploadProgress: (progressEvent) => {
-//         const percentCompleted = Math.round(
-//           (progressEvent.loaded * 100) / progressEvent.total
-//         );
-//         setProgress(percentCompleted);
-//       },
-//     });
+  //     const res = await axios.post(`${backendUrl}/loan/shg-booklet`, dataToSend, {
+  //       onUploadProgress: (progressEvent) => {
+  //         const percentCompleted = Math.round(
+  //           (progressEvent.loaded * 100) / progressEvent.total
+  //         );
+  //         setProgress(percentCompleted);
+  //       },
+  //     });
 
-//     setProgress(100); // mark complete
-//     localStorage.setItem("shg_booklet_data", JSON.stringify(dataToSend));
+  //     setProgress(100); // mark complete
+  //     localStorage.setItem("shg_booklet_data", JSON.stringify(dataToSend));
 
-//     if (res.data?.errors?.length) {
-//       setErrors(res.data.errors);
-//       setValidated(false);
-//     } else {
-//       setValidated(true);
-//       navigate("/preview", { state: { htmlContent: res.data } });
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     setErrors(["Something went wrong while submitting. Please try again."]);
-//   } finally {
-//     setLoading(false);
-//     // optionally reset after a delay if you want
-//     setTimeout(() => setProgress(0), 500);
-//   }
-// };
+  //     if (res.data?.errors?.length) {
+  //       setErrors(res.data.errors);
+  //       setValidated(false);
+  //     } else {
+  //       setValidated(true);
+  //       navigate("/preview", { state: { htmlContent: res.data } });
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     setErrors(["Something went wrong while submitting. Please try again."]);
+  //   } finally {
+  //     setLoading(false);
+  //     // optionally reset after a delay if you want
+  //     setTimeout(() => setProgress(0), 500);
+  //   }
+  // };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const validationErrors = validateForm(3);
-  if (validationErrors.length > 0) {
-    setErrors(validationErrors);
-    setValidated(false);
-    return;
-  }
-
-  setLoading(true);
-  setProgress(0);
-  setErrors([]);
-
-  const dataToSend = {
-    user_data: user,
-    shg_data: formData,
-    members_data: members,
-  };
-
-  // Simulate smooth progress
-  let interval = setInterval(() => {
-    setProgress((prev) => {
-      if (prev >= 95) {
-        clearInterval(interval); // stop before complete
-        return prev;
-      }
-      return prev + 5; // increment smoothly
-    });
-  }, 100);
-
-  try {
-    const res = await axios.post(`${backendUrl}/loan/shg-booklet`, dataToSend);
-
-    clearInterval(interval); // stop interval on completion
-    setProgress(100); // mark complete
-
-    localStorage.setItem("shg_booklet_data", JSON.stringify(dataToSend));
-
-    if (res.data?.errors?.length) {
-      setErrors(res.data.errors);
+    const validationErrors = validateForm(3);
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
       setValidated(false);
-    } else {
-      setValidated(true);
-      navigate("/preview", { state: { htmlContent: res.data } });
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    setErrors(["Something went wrong while submitting. Please try again."]);
-  } finally {
-    setLoading(false);
-    // Reset progress after a short delay for UX
-    setTimeout(() => setProgress(0), 500);
-  }
-};
 
+    setLoading(true);
+    setProgress(0);
+    setErrors([]);
+
+    const dataToSend = {
+      user_data: user,
+      shg_data: formData,
+      members_data: members,
+    };
+
+    // Simulate smooth progress
+    let interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 95) {
+          clearInterval(interval); // stop before complete
+          return prev;
+        }
+        return prev + 5; // increment smoothly
+      });
+    }, 100);
+
+    try {
+      const res = await axios.post(
+        `${backendUrl}/loan/shg-booklet`,
+        dataToSend
+      );
+
+      clearInterval(interval); // stop interval on completion
+      setProgress(100); // mark complete
+
+      localStorage.setItem("shg_booklet_data", JSON.stringify(dataToSend));
+
+      if (res.data?.errors?.length) {
+        setErrors(res.data.errors);
+        setValidated(false);
+      } else {
+        setValidated(true);
+        navigate("/preview", { state: { htmlContent: res.data } });
+      }
+    } catch (err) {
+      console.error(err);
+      setErrors(["Something went wrong while submitting. Please try again."]);
+    } finally {
+      setLoading(false);
+      // Reset progress after a short delay for UX
+      setTimeout(() => setProgress(0), 500);
+    }
+  };
 
   // ---- load saved ----
   useEffect(() => {
@@ -933,15 +935,7 @@ const handleSubmit = async (e) => {
               {loading ? (
                 <div className="flex items-center gap-2 w-full">
                   <span>Generating...</span>
-                  <div className="w-full bg-base-300 rounded h-2 overflow-hidden">
-                    <div
-                      className="bg-success h-2"
-                      style={{
-                        width: `${progress}%`,
-                        transition: "width 0.2s",
-                      }}
-                    />
-                  </div>
+                 <progress className="progress w-56 progress-primary" value={progress} max="100"></progress>
                   <span className="ml-2">{progress}%</span>
                 </div>
               ) : (
