@@ -5,57 +5,65 @@ import { useNavigate } from 'react-router-dom';
 // Create the context
 export const UserContext = createContext();
 
-// Provider component
 export const UserProvider = ({ children }) => {
-  const backendUrl = import.meta.env.VITE_BACKEND_URL
-  const [user, setUser] = useState(null); // user details
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
-  const navigate =useNavigate();
-
-  // Optionally, fetch user details if token exists
+  const [loading, setLoading] = useState(false);   // 👈 NEW
+  const [error, setError] = useState(null);        // 👈 NEW
+  const navigate = useNavigate();
 
   const fetchUserDetails = async () => {
     if (token) {
+      setLoading(true);
+      setError(null);
       try {
-        const res = await axios.get(backendUrl+'/user/me', {
-          headers: { Authorization: `Bearer ${token}` }
+        const res = await axios.get(backendUrl + '/user/me', {
+          headers: { Authorization: `Bearer ${token}` },
         });
         setUser(res.data);
-      } catch (error) {
-        console.log(error)
+      } catch (err) {
+        console.error("Failed to fetch user:", err.response?.data || err.message);
         setUser(null);
-        setToken('');
-        localStorage.removeItem('token');
+        setError(err);
+        navigate("/login");
+      } finally {
+        setLoading(false);
       }
     }
   };
-  
 
+  useEffect(() => {
+    if (token) {
+      fetchUserDetails();
+    }
+  }, [token]);
 
- useEffect(() => {
-        if (token) {
-             fetchUserDetails();
-        }
-    }, [token])
-
-  // Login function
   const login = (jwtToken) => {
-    //setUser(userData);
     setToken(jwtToken);
     localStorage.setItem('token', jwtToken);
   };
 
-  // Logout function
   const logout = () => {
     setUser(null);
     setToken('');
     localStorage.removeItem('token');
-    navigate('/login')
-    
+    navigate('/login');
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser, token, setToken, login, logout,fetchUserDetails,backendUrl}}>
+    <UserContext.Provider value={{ 
+      user, 
+      setUser, 
+      token, 
+      setToken, 
+      login, 
+      logout, 
+      fetchUserDetails, 
+      backendUrl,
+      loading,       // 👈 expose states
+      error          // 👈 expose states
+    }}>
       {children}
     </UserContext.Provider>
   );

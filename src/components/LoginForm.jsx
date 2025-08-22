@@ -49,17 +49,16 @@ const LoginForm = () => {
     }));
   };
 
- const handleSubmit = (e) => {
-  e.preventDefault();
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-  if (!form || !form.mobile || !form.password) {
-    toast.error("Please enter mobile and password");
-    return;
-  }
+    if (localStorage.getItem("token")) {
+      toast.error("You are already logged in");
+      return;
+    }
 
-  console.log("Submitting form:", form); // 🔍 Debug log
-  mutate(form);
-};
+    mutate(form); // ✅ use React Query mutation
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-base-200 px-4">
