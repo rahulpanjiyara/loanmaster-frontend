@@ -486,7 +486,7 @@ const handleSubmit = async (e) => {
   };
 
   return (
-    <main className="p-8 max-w-7xl mx-auto ">
+    <main className="p-4 max-w-7xl mx-auto ">
       <h2 className="text-center font-semibold text-secondary text-xl mb-8 tracking-wide select-none">
         SHG CASH CREDIT
       </h2>
