@@ -27,7 +27,7 @@ const LoginForm = () => {
 
         // ✅ Decode token payload
         const decoded = jwtDecode(data.token);
-        console.log("Decoded JWT:", decoded);
+        //console.log("Decoded JWT:", decoded);
 
         toast.success("Login successful!");
 
