@@ -562,7 +562,7 @@ const handleSubmit = async (e) => {
               <div className="join join-vertical sm:join-horizontal">
                 <button
                   type="submit"
-                  className="btn btn-sm join-item"
+                  className="btn btn-sm join-item p-3"
                   onClick={handleClear}
                 >
                   Reset
@@ -570,7 +570,7 @@ const handleSubmit = async (e) => {
                 <button
                   type="button"
                   onClick={addMember}
-                  className="btn btn-sm join-item"
+                  className="btn btn-sm join-item p-5 sm:p-3"
                   disabled={members.length >= 20}
                   title={
                     members.length >= 20

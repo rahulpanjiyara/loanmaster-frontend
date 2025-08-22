@@ -58,11 +58,16 @@ export default function MemberInput({
           onChange={handleChange}
         />
         <input
-          type="date"
+          type={dobValue ? "date" : "text"}
           name={dob}
           value={dobValue}
           className="input input-bordered w-full"
           onChange={handleChange}
+          placeholder="Date of Birth"
+          onFocus={(e) => (e.target.type = "date")}
+          onBlur={(e) => {
+            if (!e.target.value) e.target.type = "text";
+          }}
         />
         <input
           type="number"
@@ -91,11 +96,13 @@ export default function MemberInput({
         <select
           name={maritalStatus}
           value={maritalStatusValue}
-          className="select select-bordered w-full"
+          className={`select select-bordered w-full ${
+    maritalStatusValue === "" ? "text-gray-400" : "text-black"
+  }`}
           onChange={handleChange}
           required
         >
-          <option value="" disabled>
+          <option value="" disabled hidden>
             Select Marital Status
           </option>
           <option value="Single">Single</option>
@@ -107,11 +114,13 @@ export default function MemberInput({
         <select
           name={category}
           value={categoryValue}
-          className="select select-bordered w-full"
+         className={`select select-bordered w-full ${
+    categoryValue === "" ? "text-gray-400" : "text-black"
+  }`}
           onChange={handleChange}
           required
         >
-          <option value="" disabled>
+          <option value="" disabled hidden>
             Select Category
           </option>
           <option value="General">General</option>

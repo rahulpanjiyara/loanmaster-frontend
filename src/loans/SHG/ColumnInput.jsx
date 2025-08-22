@@ -9,7 +9,7 @@ export default function ColumnInput({
   handleChange,
   className = "",
   label = null,
-  disabled=false,
+  disabled = false,
 }) {
   return (
     <div className="form-control w-full">
@@ -25,7 +25,7 @@ export default function ColumnInput({
           name={name}
           value={value || ""}
           onChange={handleChange}
-            className={`select select-bordered w-full ${className}`}
+          className={`select select-bordered w-full ${className}`}
           aria-label={placeholder}
         >
           <option value="" disabled>
@@ -46,6 +46,7 @@ export default function ColumnInput({
           className="input w-full"
           aria-label={placeholder}
           disabled={disabled}
+         
         />
       )}
     </div>
