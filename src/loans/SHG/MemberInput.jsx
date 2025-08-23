@@ -24,9 +24,10 @@ export default function MemberInput({
   sbAccountValue,
 }) {
   return (
-    <div className="mb-3 p-4 border rounded-lg bg-white shadow-sm">
-      <div className="flex justify-between items-center mb-3">
-        <h6 className="font-bold text-lg">{memberTitle}</h6>
+    <div className="mb-2 p-3 border rounded-md bg-white shadow-sm">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h6 className="font-bold text-base">{memberTitle}</h6>
 
         {index > 9 && (
           <button
@@ -34,111 +35,139 @@ export default function MemberInput({
             onClick={() => handleDelete(index)}
             className="text-red-500 hover:text-red-700 transition-colors cursor-pointer"
           >
-            <Trash2 size={20} />
+            <Trash2 size={18} />
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <input
-          type="text"
-          name={name}
-          value={nameValue}
-          placeholder="Name"
-          className="input input-bordered w-full"
-          onChange={handleChange}
-        />
+      {/* Input Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        {/* Name */}
+        <label className="form-control w-full">
+          <span className="label-text text-[11px]">Name</span>
+          <input
+            type="text"
+            name={name}
+            value={nameValue}
+            className="input input-bordered input-sm w-full"
+            onChange={handleChange}
+          />
+        </label>
 
-        <input
-          type="text"
-          name={spouse}
-          value={spouseValue}
-          placeholder="Spouse/Father"
-          className="input input-bordered w-full"
-          onChange={handleChange}
-        />
-        <input
-          type={dobValue ? "date" : "text"}
-          name={dob}
-          value={dobValue}
-          className="input input-bordered w-full"
-          onChange={handleChange}
-          placeholder="Date of Birth"
-          onFocus={(e) => (e.target.type = "date")}
-          onBlur={(e) => {
-            if (!e.target.value) e.target.type = "text";
-          }}
-        />
-        <input
-          type="number"
-          name={aadhar}
-          value={aadharValue}
-          placeholder="Aadhar"
-          className="input input-bordered w-full"
-          onChange={handleChange}
-          pattern="\d{12}"
-          maxLength="12"
-          title="Aadhar must be exactly 12 digits"
-          required
-        />
-        <input
-          type="number"
-          name={mobile}
-          value={mobileValue}
-          placeholder="Mobile"
-          className="input input-bordered w-full"
-          onChange={handleChange}
-          pattern="\d{10}"
-          maxLength="10"
-          title="Mobile must be exactly 10 digits"
-          required
-        />
-        <select
-          name={maritalStatus}
-          value={maritalStatusValue}
-          className={`select select-bordered w-full ${
-    maritalStatusValue === "" ? "text-gray-400" : "text-black"
-  }`}
-          onChange={handleChange}
-          required
-        >
-          <option value="" disabled hidden>
-            Select Marital Status
-          </option>
-          <option value="Single">Single</option>
-          <option value="Married">Married</option>
-          <option value="Divorced">Divorced</option>
-          <option value="Separated">Separated</option>
-          <option value="Widowed">Widowed</option>
-        </select>
-        <select
-          name={category}
-          value={categoryValue}
-         className={`select select-bordered w-full ${
-    categoryValue === "" ? "text-gray-400" : "text-black"
-  }`}
-          onChange={handleChange}
-          required
-        >
-          <option value="" disabled hidden>
-            Select Category
-          </option>
-          <option value="General">General</option>
-          <option value="OBC">OBC</option>
-          <option value="SC">SC</option>
-          <option value="ST">ST</option>
-          <option value="EWS">EWS</option>
-          <option value="Minority">Minority</option>
-        </select>
+        {/* Spouse/Father */}
+        <label className="form-control w-full">
+          <span className="label-text text-[11px]">Spouse / Father</span>
+          <input
+            type="text"
+            name={spouse}
+            value={spouseValue}
+            className="input input-bordered input-sm w-full"
+            onChange={handleChange}
+          />
+        </label>
 
-        <input
-          type="number"
-          name={sbAccount}
-          value={sbAccountValue}
-          placeholder="SB Account"
-          className="input input-bordered w-full"
-          onChange={handleChange}
-        />
+        {/* DOB */}
+        <label className="form-control w-full">
+          <span className="label-text text-[11px]">Date of Birth</span>
+          <input
+            type="date"
+            name={dob}
+            value={dobValue}
+            className="input input-bordered input-sm w-full"
+            onChange={handleChange}
+          />
+        </label>
+
+        {/* Aadhar */}
+        <label className="form-control w-full">
+          <span className="label-text text-[11px]">Aadhar</span>
+          <input
+            type="number"
+            name={aadhar}
+            value={aadharValue}
+            className="input input-bordered input-sm w-full"
+            onChange={handleChange}
+            pattern="\d{12}"
+            maxLength="12"
+            title="Aadhar must be exactly 12 digits"
+            required
+          />
+        </label>
+
+        {/* Mobile */}
+        <label className="form-control w-full">
+          <span className="label-text text-[11px]">Mobile</span>
+          <input
+            type="number"
+            name={mobile}
+            value={mobileValue}
+            className="input input-bordered input-sm w-full"
+            onChange={handleChange}
+            pattern="\d{10}"
+            maxLength="10"
+            title="Mobile must be exactly 10 digits"
+            required
+          />
+        </label>
+
+        {/* Marital Status */}
+        <label className="form-control w-full">
+          <span className="label-text text-[11px]">Marital Status</span>
+          <select
+            name={maritalStatus}
+            value={maritalStatusValue}
+            className={`select select-bordered select-sm w-full ${
+              maritalStatusValue === "" ? "text-gray-400" : "text-black"
+            }`}
+            onChange={handleChange}
+            required
+          >
+            {/* <option value="" disabled hidden>
+              Select Marital Status
+            </option> */}
+            <option value="Married">Married</option>
+            <option value="Single">Single</option>
+            <option value="Widowed">Widowed</option>
+            <option value="Divorced">Divorced</option>
+            <option value="Separated">Separated</option>
+          </select>
+        </label>
+
+        {/* Category */}
+        <label className="form-control w-full">
+          <span className="label-text text-[11px]">Category</span>
+          <select
+            name={category}
+            value={categoryValue}
+            className={`select select-bordered select-sm w-full ${
+              categoryValue === "" ? "text-gray-400" : "text-black"
+            }`}
+            onChange={handleChange}
+            required
+          >
+            {/* <option value="" disabled hidden>
+              Select Category
+            </option> */}
+            <option value="General">General</option>
+            <option value="OBC">OBC</option>
+            <option value="SC">SC</option>
+            <option value="ST">ST</option>
+            <option value="EWS">EWS</option>
+            <option value="Minority">Minority</option>
+          </select>
+        </label>
+
+        {/* SB Account */}
+        <label className="form-control w-full">
+          <span className="label-text text-[11px]">SB Account</span>
+          <input
+            type="number"
+            name={sbAccount}
+            value={sbAccountValue}
+            className="input input-bordered input-sm w-full"
+            onChange={handleChange}
+          />
+        </label>
       </div>
     </div>
   );

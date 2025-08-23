@@ -336,56 +336,6 @@ export default function SHGLoan() {
   };
   const decreaseStep = () => setCurrentStep((prev) => prev - 1);
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   const validationErrors = validateForm(3);
-  //   if (validationErrors.length > 0) {
-  //     setErrors(validationErrors);
-  //     setValidated(false);
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   setProgress(0);
-
-  //   try {
-  //     setErrors([]);
-
-  //     const dataToSend = {
-  //       user_data: user,
-  //       shg_data: formData,
-  //       members_data: members,
-  //     };
-
-  //     const res = await axios.post(`${backendUrl}/loan/shg-booklet`, dataToSend, {
-  //       onUploadProgress: (progressEvent) => {
-  //         const percentCompleted = Math.round(
-  //           (progressEvent.loaded * 100) / progressEvent.total
-  //         );
-  //         setProgress(percentCompleted);
-  //       },
-  //     });
-
-  //     setProgress(100); // mark complete
-  //     localStorage.setItem("shg_booklet_data", JSON.stringify(dataToSend));
-
-  //     if (res.data?.errors?.length) {
-  //       setErrors(res.data.errors);
-  //       setValidated(false);
-  //     } else {
-  //       setValidated(true);
-  //       navigate("/preview", { state: { htmlContent: res.data } });
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     setErrors(["Something went wrong while submitting. Please try again."]);
-  //   } finally {
-  //     setLoading(false);
-  //     // optionally reset after a delay if you want
-  //     setTimeout(() => setProgress(0), 500);
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -557,10 +507,10 @@ export default function SHGLoan() {
         {/* STEP 1 - Members */}
         {currentStep === 1 && (
           <section className="p-6 border border-gray-200 rounded-md">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-medium text-gray-800 select-none">
+            <div className="flex justify-between items-center ">
+              <h5 className="text-md font-medium text-gray-800 mb-2 select-none ">
                 STEP 1/3 - SHG Member Details
-              </h3>
+              </h5>
               <div className="join join-vertical sm:join-horizontal">
                 <button
                   type="submit"
@@ -618,10 +568,10 @@ export default function SHGLoan() {
         {/* STEP 2 - Group & Address */}
         {currentStep === 2 && (
           <section className="p-6 border border-gray-200 rounded-md">
-            <h3 className="text-lg font-medium text-gray-800 mb-6 select-none">
+            <h5 className="text-md font-medium text-gray-800 mb-2 select-none">
               STEP 2/3 - SHG Group & Address Details
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            </h5>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <ColumnInput
                 label="Name of SHG"
                 type="text"
@@ -752,10 +702,10 @@ export default function SHGLoan() {
         {/* STEP 3 - Bank & Lending */}
         {currentStep === 3 && (
           <section className="p-6 border border-gray-200 rounded-md">
-            <h3 className="text-lg font-medium text-gray-800 mb-6 select-none">
+            <h5 className="text-md font-medium text-gray-800 mb-2 select-none">
               STEP 3/3 - Bank & Lending Details
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            </h5>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <ColumnInput
                 label="SB Account No."
                 type="number"
@@ -935,7 +885,11 @@ export default function SHGLoan() {
               {loading ? (
                 <div className="flex items-center gap-2 w-full">
                   <span>Generating...</span>
-                 <progress className="progress w-56 progress-primary" value={progress} max="100"></progress>
+                  <progress
+                    className="progress w-56 progress-primary"
+                    value={progress}
+                    max="100"
+                  ></progress>
                   <span className="ml-2">{progress}%</span>
                 </div>
               ) : (

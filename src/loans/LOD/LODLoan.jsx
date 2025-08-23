@@ -560,7 +560,7 @@ const LODLoan = () => {
             >
               {loading ? (
                 <>
-                  <span className="loader mr-2"></span> Submitting...
+                  <span className="loader mr-2"></span> Generating...
                 </>
               ) : (
                 "Submit Details"
