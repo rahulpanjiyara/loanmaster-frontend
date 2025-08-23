@@ -56,26 +56,25 @@ export default function SHGLoan() {
   };
 
   const handleDelete = (deleteIndex) => {
-  setMembers((prev) => {
-    const filtered = prev.filter((_, i) => i !== deleteIndex);
+    setMembers((prev) => {
+      const filtered = prev.filter((_, i) => i !== deleteIndex);
 
-    // Reassign roles after deletion
-    return filtered.map((m, i) => ({
-      ...m,
-      role:
-        i === 0
-          ? "President"
-          : i === 1
-          ? "Secretary"
-          : i === 2
-          ? "Treasurer"
-          : `Member ${i + 1}`,
-    }));
-  });
+      // Reassign roles after deletion
+      return filtered.map((m, i) => ({
+        ...m,
+        role:
+          i === 0
+            ? "President"
+            : i === 1
+            ? "Secretary"
+            : i === 2
+            ? "Treasurer"
+            : `Member ${i + 1}`,
+      }));
+    });
 
-  toast.error("Member deleted");
-};
-
+    toast.error("Member deleted");
+  };
 
   const addMember = () => {
     setMembers((prev) => {
@@ -489,14 +488,14 @@ export default function SHGLoan() {
 
       {/* Modal */}
       {(errors.length > 0 || validated) && (
-        <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-30 p-4">
-          <div className="bg-white p-6 rounded-md border border-gray-300 w-full max-w-md">
+        <dialog open className="modal">
+          <div className="modal-box">
             {errors.length > 0 ? (
               <>
-                <h3 className="text-red-600 font-semibold mb-3">
+                <h3 className="font-bold text-lg text-red-600">
                   Validation Errors
                 </h3>
-                <ul className="list-disc list-inside text-red-600 max-h-60 overflow-y-auto space-y-1">
+                <ul className="list-disc list-inside text-red-600 max-h-60 overflow-y-auto space-y-1 mt-2">
                   {errors.map((err, idx) => (
                     <li key={idx}>{err}</li>
                   ))}
@@ -507,17 +506,20 @@ export default function SHGLoan() {
                 All fields validated successfully!
               </h4>
             )}
-            <button
-              className="btn btn-sm btn-outline btn-primary mt-6 w-full"
-              onClick={() => {
-                setErrors([]);
-                setValidated(false);
-              }}
-            >
-              Close
-            </button>
+
+            <div className="modal-action">
+              <button
+                className="btn btn-outline btn-primary"
+                onClick={() => {
+                  setErrors([]);
+                  setValidated(false);
+                }}
+              >
+                Close
+              </button>
+            </div>
           </div>
-        </div>
+        </dialog>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-8">

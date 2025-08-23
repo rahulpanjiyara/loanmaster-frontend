@@ -4,6 +4,7 @@ import { UserContext } from "../contexts/userContext";
 import { Menu } from "lucide-react"; // stylish mobile menu icon
 
 const Navbar = () => {
+  
   const { user, logout } = useContext(UserContext);
 
   return (

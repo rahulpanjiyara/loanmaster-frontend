@@ -15,7 +15,7 @@ export default function ColumnInput({
     <div className="form-control w-full">
       {label && (
         <label className="label py-1">
-          <span className="label-text text-xs font-medium text-gray-700">
+          <span className="label-text text-sm font-medium text-gray-700">
             {label}
           </span>
         </label>
@@ -26,7 +26,7 @@ export default function ColumnInput({
           name={name}
           value={value || ""}
           onChange={handleChange}
-          className={`select select-bordered select-sm w-full ${className}`}
+          className={`select select-bordered  w-full ${className}`}
           aria-label={placeholder}
         >
           <option value="" disabled>
@@ -44,7 +44,7 @@ export default function ColumnInput({
           name={name}
           value={value || ""}
           onChange={handleChange}
-          className={`input input-bordered input-sm w-full ${className}`}
+          className={`input input-bordered  w-full ${className}`}
           aria-label={placeholder}
           //placeholder={placeholder}
           disabled={disabled}
