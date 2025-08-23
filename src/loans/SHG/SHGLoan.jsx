@@ -56,9 +56,26 @@ export default function SHGLoan() {
   };
 
   const handleDelete = (deleteIndex) => {
-    setMembers((prev) => prev.filter((_, i) => i !== deleteIndex));
-    toast.error("Member deleted");
-  };
+  setMembers((prev) => {
+    const filtered = prev.filter((_, i) => i !== deleteIndex);
+
+    // Reassign roles after deletion
+    return filtered.map((m, i) => ({
+      ...m,
+      role:
+        i === 0
+          ? "President"
+          : i === 1
+          ? "Secretary"
+          : i === 2
+          ? "Treasurer"
+          : `Member ${i + 1}`,
+    }));
+  });
+
+  toast.error("Member deleted");
+};
+
 
   const addMember = () => {
     setMembers((prev) => {
@@ -507,14 +524,14 @@ export default function SHGLoan() {
         {/* STEP 1 - Members */}
         {currentStep === 1 && (
           <section className="p-6 border border-gray-200 rounded-md">
-            <div className="flex justify-between items-center ">
-              <h5 className="text-md font-medium text-gray-800 mb-2 select-none ">
+            <div className="flex justify-between items-center">
+              <h5 className="text-md font-medium text-secondary select-none mb-3">
                 STEP 1/3 - SHG Member Details
               </h5>
               <div className="join join-vertical sm:join-horizontal">
                 <button
                   type="submit"
-                  className="btn btn-sm join-item p-3"
+                  className="btn btn-sm join-item"
                   onClick={handleClear}
                 >
                   Reset
@@ -522,7 +539,7 @@ export default function SHGLoan() {
                 <button
                   type="button"
                   onClick={addMember}
-                  className="btn btn-sm join-item p-5 sm:p-3"
+                  className="btn btn-sm join-item"
                   disabled={members.length >= 20}
                   title={
                     members.length >= 20
@@ -535,7 +552,7 @@ export default function SHGLoan() {
               </div>
             </div>
 
-            <div className="space-y-5 max-h-[500px] overflow-y-auto pr-2">
+            <div className="space-y-5 max-h-[500px] overflow-y-auto">
               {members.map((member, idx) => (
                 <MemberInput
                   key={idx}
@@ -568,7 +585,7 @@ export default function SHGLoan() {
         {/* STEP 2 - Group & Address */}
         {currentStep === 2 && (
           <section className="p-6 border border-gray-200 rounded-md">
-            <h5 className="text-md font-medium text-gray-800 mb-2 select-none">
+            <h5 className="text-md font-medium text-secondary select-none mb-3 ">
               STEP 2/3 - SHG Group & Address Details
             </h5>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -702,7 +719,7 @@ export default function SHGLoan() {
         {/* STEP 3 - Bank & Lending */}
         {currentStep === 3 && (
           <section className="p-6 border border-gray-200 rounded-md">
-            <h5 className="text-md font-medium text-gray-800 mb-2 select-none">
+            <h5 className="text-md font-medium text-secondary  select-none mb-3">
               STEP 3/3 - Bank & Lending Details
             </h5>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
