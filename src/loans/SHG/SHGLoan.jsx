@@ -533,7 +533,7 @@ export default function SHGLoan() {
               <div className="join join-vertical sm:join-horizontal">
                 <button
                   type="submit"
-                  className="btn btn-xs join-item"
+                  className="btn btn-xs btn-secondary join-item"
                   onClick={handleClear}
                 >
                   Reset
