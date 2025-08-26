@@ -533,7 +533,7 @@ export default function SHGLoan() {
               <div className="join join-vertical sm:join-horizontal">
                 <button
                   type="submit"
-                  className="btn btn-xs btn-secondary join-item"
+                  className="btn btn-xs  join-item"
                   onClick={handleClear}
                 >
                   Reset
@@ -590,7 +590,7 @@ export default function SHGLoan() {
             <h5 className="text-md font-medium text-secondary select-none mb-3 ">
               STEP 2/3 - SHG Group & Address Details
             </h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
               <ColumnInput
                 label="Name of SHG"
                 type="text"
@@ -724,7 +724,7 @@ export default function SHGLoan() {
             <h5 className="text-md font-medium text-secondary  select-none mb-3">
               STEP 3/3 - Bank & Lending Details
             </h5>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
               <ColumnInput
                 label="SB Account No."
                 type="number"

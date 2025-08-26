@@ -26,7 +26,7 @@ export default function MemberInput({
   return (
     <div className="mb-2 p-3 border rounded-md bg-white shadow-sm">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-2">
         <h6 className="font-bold text-base">{memberTitle}</h6>
 
         {index > 9 && (
@@ -41,51 +41,54 @@ export default function MemberInput({
       </div>
 
       {/* Input Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Name */}
-        <label className="form-control w-full">
+        <label className="form-control w-full floating-label">
           <span className="label-text text-sm ">Name</span>
           <input
             type="text"
+            placeholder="Name"
             name={name}
             value={nameValue}
-            className="input input-bordered  w-full"
+            className="input   w-full"
             onChange={handleChange}
           />
         </label>
 
         {/* Spouse/Father */}
-        <label className="form-control w-full">
+        <label className="form-control w-full floating-label">
           <span className="label-text text-sm">Spouse / Father</span>
           <input
             type="text"
+            placeholder="Spouse/Father"
             name={spouse}
             value={spouseValue}
-            className="input input-bordered  w-full"
+            className="input   w-full"
             onChange={handleChange}
           />
         </label>
 
         {/* DOB */}
-        <label className="form-control w-full">
-          <span className="label-text text-sm">Date of Birth</span>
+        <label className="form-control w-full input">
+          <span className="label label-text text-sm">Date of Birth</span>
           <input
             type="date"
             name={dob}
             value={dobValue}
-            className="input input-bordered  w-full"
+            //className="input   w-full"
             onChange={handleChange}
           />
         </label>
 
         {/* Aadhar */}
-        <label className="form-control w-full">
+        <label className="form-control w-full floating-label">
           <span className="label-text text-sm">Aadhar</span>
           <input
             type="number"
+            placeholder="Aadhar"
             name={aadhar}
             value={aadharValue}
-            className="input input-bordered  w-full"
+            className="input   w-full"
             onChange={handleChange}
             pattern="\d{12}"
             maxLength="12"
@@ -95,13 +98,14 @@ export default function MemberInput({
         </label>
 
         {/* Mobile */}
-        <label className="form-control w-full">
+        <label className="form-control w-full floating-label">
           <span className="label-text text-sm">Mobile</span>
           <input
             type="number"
+            placeholder="Mobile"
             name={mobile}
             value={mobileValue}
-            className="input input-bordered  w-full"
+            className="input   w-full"
             onChange={handleChange}
             pattern="\d{10}"
             maxLength="10"
@@ -112,7 +116,7 @@ export default function MemberInput({
 
         {/* Marital Status */}
         <label className="form-control w-full">
-          <span className="label-text text-sm">Marital Status</span>
+          {/* <span className="label label-text text-sm">Marital Status</span> */}
           <select
             name={maritalStatus}
             value={maritalStatusValue}
@@ -121,7 +125,6 @@ export default function MemberInput({
             }`}
             onChange={handleChange}
             required
-           
           >
             <option value="" disabled hidden>
               Select Marital Status
@@ -136,7 +139,7 @@ export default function MemberInput({
 
         {/* Category */}
         <label className="form-control w-full">
-          <span className="label-text text-sm">Category</span>
+          {/* <span className=" label-text text-sm">Category</span> */}
           <select
             name={category}
             value={categoryValue}
@@ -159,13 +162,14 @@ export default function MemberInput({
         </label>
 
         {/* SB Account */}
-        <label className="form-control w-full">
+        <label className="form-control w-full floating-label">
           <span className="label-text text-sm">SB Account</span>
           <input
             type="number"
+            placeholder="SB Account"
             name={sbAccount}
             value={sbAccountValue}
-            className="input input-bordered w-full"
+            className="input  w-full"
             onChange={handleChange}
           />
         </label>

@@ -26,7 +26,7 @@ export default function ColumnInput({
           name={name}
           value={value || ""}
           onChange={handleChange}
-          className={`select select-bordered  w-full ${className}`}
+          className={`select   w-full ${className}`}
           aria-label={placeholder}
         >
           <option value="" disabled>
@@ -44,7 +44,7 @@ export default function ColumnInput({
           name={name}
           value={value || ""}
           onChange={handleChange}
-          className={`input input-bordered  w-full ${className}`}
+          className={`input  w-full ${className}`}
           aria-label={placeholder}
           //placeholder={placeholder}
           disabled={disabled}
