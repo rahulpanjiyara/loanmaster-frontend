@@ -4,7 +4,6 @@ import React, { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-// Create the context
 export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
@@ -38,7 +37,7 @@ export const UserProvider = ({ children }) => {
     error,
     refetch: fetchUserDetails,
   } = useQuery({
-    queryKey: ["user", token], // cache key depends on token
+    queryKey: ["user", token],
     queryFn: async () => {
       if (!token) return null;
       const res = await axios.get(`${backendUrl}/user/me`, {
@@ -46,24 +45,58 @@ export const UserProvider = ({ children }) => {
       });
       return res.data;
     },
-    enabled: !!token, // only run if token exists
-    retry: 1, // only retry once if it fails
+    enabled: !!token,
+    retry: 1,
   });
 
   // ✅ Save token after login
   const login = (jwtToken) => {
     setToken(jwtToken);
     localStorage.setItem("token", jwtToken);
-    queryClient.invalidateQueries(["user"]); // refresh user
+    queryClient.invalidateQueries(["user"]);
   };
 
   // ✅ Clear user/token on logout
   const logout = () => {
     setToken("");
     localStorage.removeItem("token");
-    queryClient.clear(); // clear cache
-    navigate("/login");
+    queryClient.clear();
+    navigate("/login", { replace: true });
   };
+
+  // ✅ Watch localStorage (manual token deletion)
+  useEffect(() => {
+    const syncLogout = (event) => {
+      if (event.key === "token" && !event.newValue) {
+        console.log("Token removed in another tab → logging out");
+        logout();
+      }
+    };
+    window.addEventListener("storage", syncLogout);
+    return () => {
+      window.removeEventListener("storage", syncLogout);
+    };
+  }, []);
+
+  // ✅ Auto logout when token expires
+  useEffect(() => {
+    if (!token) return;
+
+    try {
+      const { exp } = JSON.parse(atob(token.split(".")[1])); // decode JWT payload
+      const expiryTime = exp * 1000 - Date.now();
+
+      if (expiryTime <= 0) {
+        logout();
+      } else {
+        const timer = setTimeout(logout, expiryTime);
+        return () => clearTimeout(timer);
+      }
+    } catch (err) {
+      console.error("Invalid token:", err);
+      logout();
+    }
+  }, [token]);
 
   return (
     <UserContext.Provider
