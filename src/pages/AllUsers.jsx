@@ -23,8 +23,35 @@ const AllUsers = () => {
     staleTime: 1000 * 60 * 5, // cache for 5 minutes for faster repeated loads
   });
 
+    // Sort all users by branch name (alphabetical, case-insensitive)
+  const sortedUsers = [...users].sort((a, b) =>
+    (a.brName || "").localeCompare(b.brName || "", "en", {
+      sensitivity: "base",
+    })
+  );
+
   if (isLoading) {
-    return <p className="text-center py-6">Loading users...</p>;
+     return (
+    <div className="p-4">
+      <h1 className="text-3xl font-bold mb-6 text-primary">All Users</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={i}
+            className="card bg-base-100 shadow-xl border border-base-300 animate-pulse"
+          >
+            <div className="card-body space-y-3">
+              <div className="h-6 w-1/2 bg-base-300 rounded"></div>
+              <div className="h-4 w-1/3 bg-base-300 rounded"></div>
+              <div className="h-4 w-2/3 bg-base-300 rounded"></div>
+              <div className="h-4 w-1/4 bg-base-300 rounded"></div>
+              <div className="h-5 w-1/2 bg-base-300 rounded mt-2"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
   }
 
   if (isError) {
@@ -38,7 +65,7 @@ const AllUsers = () => {
 
       {/* User Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {users.map((user) => (
+        {sortedUsers.map((user) => (
           <div
             key={user._id}
             className="card bg-base-100 shadow-xl border border-base-300 cursor-pointer"
