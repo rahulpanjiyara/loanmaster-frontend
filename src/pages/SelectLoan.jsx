@@ -34,6 +34,11 @@ export default function SelectLoan() {
       desc: "Need money urgently, without premature withdrwal of FD?",
       path: "/lodloan",
     },
+    // {
+    //   title: "MSME Sakhi Loan",
+    //   desc: "Business Loan for SHG members to start or expand their ventures",
+    //   path: "/sakhiloan",
+    // },
     // { title: "Car Loan", desc: "Get your dream vehicle with easy EMIs" },
     // { title: "Education Loan", desc: "Support for higher education expenses" },
     // { title: "Gold Loan", desc: "Instant loan against your gold assets" },

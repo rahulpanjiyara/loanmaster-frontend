@@ -453,6 +453,49 @@ export default function SHGLoan() {
     }
   };
 
+  // ---- JSON upload ----
+  const handleUploadJSON = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target.result);
+
+        setFormData(parsed.shg_data || {});
+        setMembers(parsed.members_data || []);
+        toast.success("Form data loaded from JSON!");
+      } catch (err) {
+        toast.error("Invalid JSON file");
+      }
+    };
+    reader.readAsText(file);
+  };
+  // ------ JSON download ------
+  const handleDownloadJSON = () => {
+    const dataToDownload = {
+      //user_data: user,
+      shg_data: formData,
+      members_data: members,
+    };
+    const blob = new Blob([JSON.stringify(dataToDownload, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+
+    // Use SHG name if available, otherwise default
+    const filename = `${formData.shgname || "shg_form"}.json`;
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast.success("Form data downloaded!");
+  };
+
   return (
     <main className="p-4 max-w-7xl mx-auto">
       <h2 className="text-center font-semibold text-secondary text-xl mb-8 tracking-wide select-none">
@@ -531,6 +574,16 @@ export default function SHGLoan() {
                 STEP 1/3 - SHG Member Details
               </h5>
               <div className="join join-vertical sm:join-horizontal">
+                <label className="btn btn-xs join-item cursor-pointer">
+                  Upload JSON
+                  <input
+                    type="file"
+                    accept="application/json"
+                    className="hidden"
+                    onChange={handleUploadJSON}
+                  />
+                </label>
+
                 <button
                   type="submit"
                   className="btn btn-xs  join-item"
@@ -896,25 +949,35 @@ export default function SHGLoan() {
             </button>
           )}
           {currentStep === 3 && (
-            <button
-              type="submit"
-              className="btn btn-success px-10"
-              disabled={loading}
-            >
-              {loading ? (
-                <div className="flex items-center gap-2 w-full">
-                  <span>Generating...</span>
-                  <progress
-                    className="progress w-56 progress-primary"
-                    value={progress}
-                    max="100"
-                  ></progress>
-                  <span className="ml-2">{progress}%</span>
-                </div>
-              ) : (
-                "Submit"
-              )}
-            </button>
+            <>
+              <button
+                type="button"
+                className="btn btn-outline btn-secondary px-8"
+                onClick={handleDownloadJSON}
+              >
+                Download JSON
+              </button>
+
+              <button
+                type="submit"
+                className="btn btn-success px-10"
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2 w-full">
+                    <span>Generating...</span>
+                    <progress
+                      className="progress w-56 progress-primary"
+                      value={progress}
+                      max="100"
+                    ></progress>
+                    <span className="ml-2">{progress}%</span>
+                  </div>
+                ) : (
+                  "Submit"
+                )}
+              </button>
+            </>
           )}
         </div>
       </form>

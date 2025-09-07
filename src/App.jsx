@@ -15,9 +15,10 @@ import SelectLoan from "./pages/SelectLoan";
 import SHGLoan from "./loans/SHG/SHGLoan";
 import Preview from "./components/Preview";
 import LODLoan from "./loans/LOD/LODLoan";
-import WBBCCLoan from "./loans/WBBCC/WBBCCLoan";
+import WBBCCLoan from "./loans/SAKHI/SAKHILoan";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import SAKHILoan from "./loans/SAKHI/SAKHILoan";
 
 const App = () => {
   return (
@@ -45,7 +46,7 @@ const App = () => {
           <Route path="/selectloan" element={<SelectLoan />} />
           <Route path="/shgloan" element={<SHGLoan />} />
           <Route path="/lodloan" element={<LODLoan />} />
-          <Route path="/wbbccloan" element={<WBBCCLoan />} />
+          <Route path="/sakhiloan" element={<SAKHILoan />} />
           <Route path="/preview" element={<Preview />} />
         </Route>
       </Routes>

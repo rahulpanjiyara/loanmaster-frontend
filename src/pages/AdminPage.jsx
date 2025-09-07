@@ -50,7 +50,12 @@ const AdminPage = () => {
     .filter((user) => user.lastLogin && new Date(user.lastLogin) >= monthAgo)
     .sort((a, b) => new Date(b.lastLogin) - new Date(a.lastLogin));
 
-  if (isLoading) return <p className="text-center">Loading users...</p>;
+  if (isLoading) return (
+    <div className="flex flex-col justify-center items-center h-64 gap-3">
+      <span className="loading loading-dots loading-lg text-primary"></span>
+      <p className="text-lg text-gray-600">Fetching users...</p>
+    </div>
+  );
   if (isError)
     return <p className="text-center text-red-500">Error fetching users.</p>;
 

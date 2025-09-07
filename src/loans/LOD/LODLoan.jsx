@@ -200,7 +200,7 @@ const LODLoan = () => {
   };
 
   const validateLoanDetails = () => {
-    const { elgLoan, appLoan, spread, appDate, sanDate, sbAcc, address } =
+    const { elgLoan, appLoan, spread, appDate, sanDate} =
       loanDetails;
     let loanError = "";
     // if (!sbAcc) loanError = "SB account is required";
