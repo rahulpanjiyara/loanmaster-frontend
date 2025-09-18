@@ -583,6 +583,10 @@ export default function SHGLoan() {
                     onChange={handleUploadJSON}
                   />
                 </label>
+                <label className="btn btn-xs join-item cursor-pointer">
+                  Download JSON
+                  <button onChange={handleDownloadJSON} />
+                </label>
 
                 <button
                   type="submit"

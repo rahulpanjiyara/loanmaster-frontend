@@ -10,6 +10,7 @@ const RegisterForm = () => {
     mobile: "",
     email: "",
     password: "",
+    zoName: "",
     brName: "",
     brPlace: "",
     brCode: "",
@@ -108,6 +109,16 @@ const RegisterForm = () => {
                 required
               />
             </div>
+            {/* Zone Name */}
+            <div className="form-control">
+              <label className="label">Zone Name</label>
+              <input
+                name="zoName"
+                value={form.zoName}
+                onChange={handleChange}
+                className="input input-bordered w-full"
+              />
+            </div>
 
             {/* Branch Name */}
             <div className="form-control">
@@ -144,7 +155,7 @@ const RegisterForm = () => {
 
             {/* Branch ABM */}
             <div className="form-control">
-              <label className="label">Branch ABM</label>
+              <label className="label">Branch ABM Name</label>
               <input
                 name="brAbm"
                 value={form.brAbm}
@@ -155,7 +166,7 @@ const RegisterForm = () => {
 
             {/* Branch Manager */}
             <div className="form-control">
-              <label className="label">Branch Manager</label>
+              <label className="label">Branch Manager Name</label>
               <input
                 name="brManager"
                 value={form.brManager}
@@ -165,7 +176,7 @@ const RegisterForm = () => {
             </div>
 
             {/* BM Designation */}
-            <div className="form-control">
+            <div className="form-control md:col-span-2">
               <label className="label">BM Designation</label>
               <select
                 name="BMDesignation"

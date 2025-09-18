@@ -10,6 +10,7 @@ export default function SelectLoan() {
   useEffect(() => {
     if (user) {
       if (
+        // !user.zoName ||
         !user.brName ||
         !user.brPlace ||
         !user.brCode ||
@@ -45,6 +46,14 @@ export default function SelectLoan() {
     // { title: "Business Loan", desc: "Grow your business with flexible terms" },
   ];
 
+   if (user?.userType === "admin") {
+    loans.push({
+      title: "MSME Sakhi Loan",
+      desc: "Business Loan for SHG members to start or expand their ventures",
+      path: "/sakhiloan",
+    });
+  }
+
   if (showWarning) {
     return (
       <div className="p-4 text-center">
@@ -52,7 +61,7 @@ export default function SelectLoan() {
           Profile Incomplete
         </h2>
         <p className="text-gray-700">
-          Please complete your profile (Branch Name, Branch Place, Branch Code,
+          Please complete your profile (Zone Name, Branch Name, Branch Place, Branch Code,
           Branch ABM, Branch Manager, BM Designation) before selecting a loan.
         </p>
         <p className="mt-2 text-sm text-gray-500">

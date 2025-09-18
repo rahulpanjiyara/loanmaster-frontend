@@ -70,6 +70,7 @@ const ProfilePage = () => {
               { label: "Name", name: "name", type: "text" },
               { label: "Mobile", name: "mobile", type: "tel", disabled: true },
               { label: "Email", name: "email", type: "email", colSpan: 2 },
+              { label: "Zone Name", name: "zoName" },
               { label: "Branch Name", name: "brName" },
               { label: "Branch Place", name: "brPlace" },
               { label: "Branch Code", name: "brCode" },

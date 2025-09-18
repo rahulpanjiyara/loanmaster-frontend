@@ -5,7 +5,6 @@ import { UserContext } from "../../contexts/userContext";
 import { toast } from "react-toastify";
 import axios from "axios";
 
-
 // Single-file refactored multi-step form with persistent data across steps.
 // Pattern: parent holds canonical `formData`. Each step initializes its local
 // state from `data` (on data change) AND writes updates back to parent via
@@ -13,8 +12,14 @@ import axios from "axios";
 // navigating Back/Next.
 
 const SAKHILoan = () => {
+  const [loading, setLoading] = useState(false);
+
+  // Load saved data from localStorage
+  const savedData =
+    JSON.parse(localStorage.getItem("sakhi_booklet_data")) || {};
+
   const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(savedData?.sakhi_data || {});
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const { user } = useContext(UserContext);
@@ -58,16 +63,15 @@ const SAKHILoan = () => {
     premisesOccupancy: "Premises Occupancy",
     cashAndBankBalance: "Cash & Bank Balance",
     lipGoldNscOtherInvestment: "LIP/Gold/NSC/Other Investment",
-    landDetails: "Land Details",
-    buildingDetails: "Building Details",
-    plantMachineryFurniture: "Plant, Machinery & Furniture",
-    currentStock: "Current Stock",
-    debtorsValue: "Debtors Value",
-    outstandingBankLoans: "Outstanding Bank Loans",
-    totalExistingEmis: "Total Existing EMIs",
-    turnoverLastFY: "Turnover Last FY",
-    grossProfit: "Gross Profit",
-    netProfit: "Net Profit",
+    landValue: "Value of Land",
+    buildingValue: "Value of Building",
+    plantMachineryFurniture: "Plant, Machinery & Furniture (Value)",
+    currentStock: "Current Stock (Value)",
+    debtors: "Debtors (Value)",
+    lastYearSales: "Last Year Sales",
+    lastYearGrossProfit: "Last Year Gross Profit",
+    lastYearNetProfit: "Last Year Net Profit",
+    lastYearCapital: "Last Year Capital",
     shgGroupName: "SHG/Group Name",
     shgGroupAddress: "SHG/Group Address",
     nrlmCode: "NRLM Code",
@@ -84,8 +88,9 @@ const SAKHILoan = () => {
     loanAmount: "Loan Amount",
     loanPurpose: "Loan Purpose",
     tenureMonths: "Tenure (Months)",
-    currentRepoRate: "Current Repo Rate",
+    repoRate: "Repo Rate",
     sanctionDate: "Sanction Date",
+    unitVisitDate: "Unit Visit Date",
   };
 
   const handleSubmit = async () => {
@@ -106,15 +111,11 @@ const SAKHILoan = () => {
       return;
     }
 
-    console.log("Form submitted:", finalFormData);
-    alert("Form submitted successfully! Check console for data.");
-
     try {
-      //setLoading(true); // ✅ Start loader
+      setLoading(true); // ✅ Start loader
       const dataToSend = {
         user_data: user,
         sakhi_data: finalFormData,
-        
       };
       const res = await axios.post(
         `${backendUrl}/loan/sakhi-booklet`,
@@ -124,6 +125,27 @@ const SAKHILoan = () => {
     } catch (err) {
       console.error(err);
       toast.error("Error submitting data. Please try again.");
+    } finally {
+      setLoading(false); // ✅ Stop loader
+    }
+  };
+
+  // --- Persist to localStorage whenever data changes ---
+  useEffect(() => {
+    const dataToSave = {
+      user_data: user,
+      sakhi_data: formData,
+    };
+    localStorage.setItem("sakhi_booklet_data", JSON.stringify(dataToSave));
+  }, [user, formData]);
+
+  // --- Clear form ---
+  const handleClear = (e) => {
+    e.preventDefault();
+    if (window.confirm("Are you sure you want to clear the form?")) {
+      localStorage.removeItem("sakhi_booklet_data");
+
+      setFormData({});
     }
   };
 
@@ -135,7 +157,7 @@ const SAKHILoan = () => {
         const json = JSON.parse(evt.target.result);
         if (typeof json === "object" && json !== null) {
           setFormData(json);
-          alert("Form data loaded from JSON!");
+          //alert("Form data loaded from JSON!");
         } else {
           throw new Error("Invalid JSON structure");
         }
@@ -180,6 +202,12 @@ const SAKHILoan = () => {
             onClick={downloadJSON}
           >
             Download JSON
+          </button>
+          <button
+            className="btn btn-xs join-item rounded-r-sm"
+            onClick={handleClear}
+          >
+            Reset Form
           </button>
           <div className="ml-auto text-sm">Step {step} / 5</div>
         </div>
@@ -242,6 +270,7 @@ const SAKHILoan = () => {
               updateForm={updateForm}
               onBack={prevStep}
               onSubmit={handleSubmit}
+              loading={loading} // Pass loading state to disable submit button
             />
           )}
         </div>
@@ -257,7 +286,7 @@ export default SAKHILoan;
 const StepBorrower = ({ data, updateForm, onNext }) => {
   const [local, setLocal] = useState({});
   const [legalHeirs, setLegalHeirs] = useState([
-    { name: "", age: "", relation: "" },
+    { name: "", age: "", relation: "", occupation: "" },
   ]);
 
   // Sync whenever global `data` changes
@@ -280,12 +309,15 @@ const StepBorrower = ({ data, updateForm, onNext }) => {
       pan: data.pan || "",
       cibilScore: data.cibilScore || "",
       customerSince: data.customerSince || "",
+      sbAccount: data.sbAccount || "",
+      cif: data.cif || "",
+      neighbour: data.neighbour || "",
     });
 
     if (Array.isArray(data.legalHeirs) && data.legalHeirs.length) {
       setLegalHeirs(data.legalHeirs);
     } else {
-      setLegalHeirs([{ name: "", age: "", relation: "" }]);
+      setLegalHeirs([{ name: "", age: "", relation: "", occupation: "" }]);
     }
   }, [data]);
 
@@ -307,7 +339,10 @@ const StepBorrower = ({ data, updateForm, onNext }) => {
   };
 
   const addHeir = () => {
-    const updated = [...legalHeirs, { name: "", age: "", relation: "" }];
+    const updated = [
+      ...legalHeirs,
+      { name: "", age: "", relation: "", occupation: "" },
+    ];
     setLegalHeirs(updated);
     updateForm({ legalHeirs: updated });
   };
@@ -315,7 +350,9 @@ const StepBorrower = ({ data, updateForm, onNext }) => {
   const removeHeir = (idx) => {
     const updated = legalHeirs.filter((_, i) => i !== idx);
     setLegalHeirs(
-      updated.length ? updated : [{ name: "", age: "", relation: "" }]
+      updated.length
+        ? updated
+        : [{ name: "", age: "", relation: "", occupation: "" }]
     );
     updateForm({ legalHeirs: updated });
   };
@@ -342,6 +379,9 @@ const StepBorrower = ({ data, updateForm, onNext }) => {
           ["PAN", "pan", "text"],
           ["CIBIL Score", "cibilScore", "number"],
           ["Customer Since", "customerSince", "date"],
+          ["SB Account", "sbAccount", "number"],
+          ["CIF", "cif", "number"],
+          ["Neighbour Name", "neighbour", "text"],
         ].map(([label, name, type]) => (
           <Input
             key={name}
@@ -360,7 +400,7 @@ const StepBorrower = ({ data, updateForm, onNext }) => {
         {legalHeirs.map((heir, idx) => (
           <div
             key={idx}
-            className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2 relative"
+            className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 relative"
           >
             <Input
               label="Name"
@@ -381,6 +421,14 @@ const StepBorrower = ({ data, updateForm, onNext }) => {
               value={heir.relation}
               onChange={(e) =>
                 handleHeirChange(idx, "relation", e.target.value)
+              }
+            />
+            <Input
+              label="Occupation"
+              name={`heir_occupation_${idx}`}
+              value={heir.occupation}
+              onChange={(e) =>
+                handleHeirChange(idx, "occupation", e.target.value)
               }
             />
 
@@ -526,21 +574,36 @@ const StepBusiness = ({ data, updateForm, onNext, onBack }) => {
 
 const StepFinance = ({ data, updateForm, onNext, onBack }) => {
   const [local, setLocal] = useState({});
+  const [existingLoans, setExistingLoans] = useState([
+    {
+      loanType: "",
+      financier: "",
+      bank: "",
+      branch: "",
+      limit: "",
+      outstanding: "",
+      emi: "",
+    },
+  ]);
+
   useEffect(() => {
     setLocal({
       cashAndBankBalance: data.cashAndBankBalance || "",
       lipGoldNscOtherInvestment: data.lipGoldNscOtherInvestment || "",
-      landDetails: data.landDetails || "",
-      buildingDetails: data.buildingDetails || "",
+      landValue: data.landValue || "",
+      buildingValue: data.buildingValue || "",
       plantMachineryFurniture: data.plantMachineryFurniture || "",
       currentStock: data.currentStock || "",
-      debtorsValue: data.debtorsValue || "",
-      outstandingBankLoans: data.outstandingBankLoans || "",
-      totalExistingEmis: data.totalExistingEmis || "",
-      turnoverLastFY: data.turnoverLastFY || "",
-      grossProfit: data.grossProfit || "",
-      netProfit: data.netProfit || "",
+      debtors: data.debtors || "",
+      lastYearSales: data.lastYearSales || "",
+      lastYearGrossProfit: data.lastYearGrossProfit || "",
+      lastYearNetProfit: data.lastYearNetProfit || "",
+      lastYearCapital: data.lastYearCapital || "",
     });
+
+    if (Array.isArray(data.existingLoans) && data.existingLoans.length) {
+      setExistingLoans(data.existingLoans);
+    }
   }, [data]);
 
   const handle = (e) => {
@@ -552,9 +615,54 @@ const StepFinance = ({ data, updateForm, onNext, onBack }) => {
     });
   };
 
+  // --- Existing Loans Handlers ---
+  const handleLoanChange = (index, field, value) => {
+    const updated = [...existingLoans];
+    updated[index] = { ...updated[index], [field]: value };
+    setExistingLoans(updated);
+    updateForm({ existingLoans: updated });
+  };
+
+  const addLoan = () => {
+    const updated = [
+      ...existingLoans,
+      {
+        loanType: "",
+        bank: "",
+        branch: "",
+        limit: "",
+        outstanding: "",
+        emi: "",
+      },
+    ];
+    setExistingLoans(updated);
+    updateForm({ existingLoans: updated });
+  };
+
+  const removeLoan = (idx) => {
+    const updated = existingLoans.filter((_, i) => i !== idx);
+    setExistingLoans(
+      updated.length
+        ? updated
+        : [
+            {
+              loanType: "",
+              bank: "",
+              branch: "",
+              limit: "",
+              outstanding: "",
+              emi: "",
+            },
+          ]
+    );
+    updateForm({ existingLoans: updated });
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Financial Details</h2>
+
+      {/* Fixed fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <Input
           label="Cash & Bank Balance"
@@ -572,75 +680,156 @@ const StepFinance = ({ data, updateForm, onNext, onBack }) => {
         />
         <Input
           label="Value of Land"
-          name="landDetails"
+          name="landValue"
           type="number"
-          value={local.landDetails}
+          value={local.landValue}
           onChange={handle}
         />
         <Input
           label="Value of Building"
-          name="buildingDetails"
+          name="buildingValue"
           type="number"
-          value={local.buildingDetails}
+          value={local.buildingValue}
           onChange={handle}
         />
         <Input
-          label="Plant/Machinery/Furniture"
+          label="Plant/Machinery/Furniture (Value)"
           name="plantMachineryFurniture"
           type="number"
           value={local.plantMachineryFurniture}
           onChange={handle}
         />
         <Input
-          label="Current Stock"
+          label="Current Stock (Value)"
           name="currentStock"
           type="number"
           value={local.currentStock}
           onChange={handle}
         />
         <Input
-          label="Book-debts"
-          name="debtorsValue"
+          label="Book-debts (Value)"
+          name="debtors"
           type="number"
-          value={local.debtorsValue}
+          value={local.debtors}
+          onChange={handle}
+        />
+
+        <Input
+          label="Last Year Sales"
+          name="lastYearSales"
+          type="number"
+          value={local.lastYearSales}
           onChange={handle}
         />
         <Input
-          label="Outstanding Bank Loans"
-          name="outstandingBankLoans"
+          label="Last Year Gross Profit"
+          name="lastYearGrossProfit"
           type="number"
-          value={local.outstandingBankLoans}
+          value={local.lastYearGrossProfit}
+          onChange={handle}
+        />
+
+        <Input
+          label="Last Year Net Profit"
+          name="lastYearNetProfit"
+          type="number"
+          value={local.lastYearNetProfit}
           onChange={handle}
         />
         <Input
-          label="Total Existing EMIs"
-          name="totalExistingEmis"
+          label="Last Year Capital"
+          name="lastYearCapital"
           type="number"
-          value={local.totalExistingEmis}
-          onChange={handle}
-        />
-        <Input
-          label="Turnover (Last FY)"
-          name="turnoverLastFY"
-          type="number"
-          value={local.turnoverLastFY}
-          onChange={handle}
-        />
-        <Input
-          label="Gross Profit"
-          name="grossProfit"
-          type="number"
-          value={local.grossProfit}
-          onChange={handle}
-        />
-        <Input
-          label="Net Profit"
-          name="netProfit"
-          type="number"
-          value={local.netProfit}
+          value={local.lastYearCapital}
           onChange={handle}
         />
       </div>
+
+      {/* Existing Loan Details Section */}
+      <div className="mt-6">
+        <h3 className="text-xl font-semibold mb-2">Existing Loans</h3>
+        {existingLoans.map((loan, idx) => (
+          <div
+            key={idx}
+            className="grid grid-cols-1 md:grid-cols-7 gap-2 mb-2 relative"
+          >
+            <Select
+              label="Financier"
+              value={loan.financier}
+              options={[
+                "Indian Bank",
+                "Other Bank",
+                "Other financial institution",
+              ]}
+              onChange={(e) =>
+                handleLoanChange(idx, "financier", e.target.value)
+              }
+            />
+            <Select
+              label="Loan Type"
+              value={loan.loanType}
+              options={[
+                "Consumer Loan",
+                "Gold Loan",
+                "Loan Against Deposit",
+                "Vehicle Loan",
+                "Personl Loan",
+                "KCC",
+                "Cash Credit",
+                "Term Loan",
+                "Others",
+              ]}
+              onChange={(e) =>
+                handleLoanChange(idx, "loanType", e.target.value)
+              }
+            />
+
+            <Input
+              label="Bank Name"
+              value={loan.bank}
+              onChange={(e) => handleLoanChange(idx, "bank", e.target.value)}
+            />
+            <Input
+              label="Branch Name"
+              value={loan.branch}
+              onChange={(e) => handleLoanChange(idx, "branch", e.target.value)}
+            />
+            <Input
+              label="Limit (Rs.)"
+              type="number"
+              value={loan.limit}
+              onChange={(e) => handleLoanChange(idx, "limit", e.target.value)}
+            />
+            <Input
+              label="Outstanding (Rs.)"
+              type="number"
+              value={loan.outstanding}
+              onChange={(e) =>
+                handleLoanChange(idx, "outstanding", e.target.value)
+              }
+            />
+            <Input
+              label="EMI (Rs.)"
+              type="number"
+              value={loan.emi}
+              onChange={(e) => handleLoanChange(idx, "emi", e.target.value)}
+            />
+
+            {existingLoans.length > 1 && (
+              <Trash2
+                size={18}
+                className="absolute top-2 right-2 text-red-500 cursor-pointer"
+                onClick={() => removeLoan(idx)}
+                title="Delete Loan"
+              />
+            )}
+          </div>
+        ))}
+        <button className="btn btn-outline btn-sm mt-2" onClick={addLoan}>
+          + Add Loan
+        </button>
+      </div>
+
       <div className="mt-6 flex justify-between">
         <button className="btn" onClick={onBack}>
           Back
@@ -777,16 +966,19 @@ const StepShg = ({ data, updateForm, onNext, onBack }) => {
   );
 };
 
-const StepLoan = ({ data, updateForm, onBack, onSubmit }) => {
+const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
   // Keep a small local copy for immediate fields but sync on every change
   const [local, setLocal] = useState({
     lapsReffNo: data.lapsReffNo || "",
     applicationDate: data.applicationDate || "",
     loanAmount: data.loanAmount || "",
     loanPurpose: data.loanPurpose || "",
+    articles: data.articles || "",
+    articlesPrice: data.articlesPrice || "",
     tenureMonths: data.tenureMonths || "",
-    currentRepoRate: data.currentRepoRate || "",
+    repoRate: data.repoRate || "",
     sanctionDate: data.sanctionDate || "",
+    unitVisitDate: data.unitVisitDate || "",
   });
 
   useEffect(() => {
@@ -795,9 +987,12 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit }) => {
       applicationDate: data.applicationDate || "",
       loanAmount: data.loanAmount || "",
       loanPurpose: data.loanPurpose || "",
+      articles: data.articles || "",
+      articlesPrice: data.articlesPrice || "",
       tenureMonths: data.tenureMonths || "",
-      currentRepoRate: data.currentRepoRate || "",
+      repoRate: data.repoRate || "",
       sanctionDate: data.sanctionDate || "",
+      unitVisitDate: data.unitVisitDate || "",
     });
   }, [data]);
 
@@ -817,7 +1012,7 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit }) => {
         <Input
           label="LAPS Reff No."
           name="lapsReffNo"
-          type="number"
+          type="text"
           value={local.lapsReffNo}
           onChange={handle}
         />
@@ -835,17 +1030,51 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit }) => {
           value={local.tenureMonths}
           onChange={handle}
         />
-        <Input
+        <Select
           label="Loan Purpose"
           name="loanPurpose"
           value={local.loanPurpose}
           onChange={handle}
+          options={[
+            "Stock Creation",
+            "Purchase of Machinery",
+            "Purchase of Commercial Vehicle",
+            "Renovation of Shop",
+            "Purchase of Stocks & Machinery",
+            "Shop Renovation & Stock Creation",
+          ]}
+        />
+        <Input
+          type="text"
+          label="Articles to be purchased"
+          name="articles"
+          value={local.articles}
+          onChange={handle}
+        />
+        <Input
+          type="text"
+          label="Price of Articles"
+          name="articlesPrice"
+          value={local.articlesPrice}
+          onChange={handle}
+          placeholder={
+            local.loanAmount
+              ? Math.ceil((local.loanAmount * 10) / 9 / 1000) * 1000
+              : ""
+          }
         />
         <Input
           label="Application Date"
           name="applicationDate"
           type="date"
           value={local.applicationDate}
+          onChange={handle}
+        />
+        <Input
+          label="Unit Visit Date"
+          name="unitVisitDate"
+          type="date"
+          value={local.unitVisitDate}
           onChange={handle}
         />
         <Input
@@ -857,9 +1086,9 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit }) => {
         />
         <Input
           label="Repo Rate (%)"
-          name="currentRepoRate"
+          name="repoRate"
           type="number"
-          value={local.currentRepoRate}
+          value={local.repoRate}
           onChange={handle}
         />
       </div>
@@ -869,8 +1098,18 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit }) => {
           Back
         </button>
         <div className="flex gap-2">
-          <button className="btn btn-success" onClick={onSubmit}>
-            Submit
+          <button
+            onClick={onSubmit}
+            className="btn btn-success px-10"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="loader mr-2"></span> Generating...
+              </>
+            ) : (
+              "Submit"
+            )}
           </button>
         </div>
       </div>
@@ -879,7 +1118,14 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit }) => {
 };
 
 /* ---------------- Input & Select Components ---------------- */
-const Input = ({ label, name, type = "text", value = "", onChange }) => (
+const Input = ({
+  label,
+  name,
+  type = "text",
+  value = "",
+  placeholder,
+  onChange,
+}) => (
   <div className="form-control">
     <label className="label">
       <span className="label-text text-sm">{label}</span>
@@ -888,6 +1134,7 @@ const Input = ({ label, name, type = "text", value = "", onChange }) => (
       type={type}
       name={name}
       value={value}
+      placeholder={placeholder}
       onChange={onChange}
       className="input w-full"
     />
