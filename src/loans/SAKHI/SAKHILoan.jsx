@@ -13,6 +13,11 @@ import axios from "axios";
 
 const SAKHILoan = () => {
   const [loading, setLoading] = useState(false);
+  // Add state for error modal
+
+const [showErrorModal, setShowErrorModal] = useState(false);
+const [showResetModal, setShowResetModal] = useState(false);
+const [missingFields, setMissingFields] = useState([]);
 
   // Load saved data from localStorage
   const savedData =
@@ -81,54 +86,110 @@ const SAKHILoan = () => {
     shgCcAccount: "SHG CC Account",
     dateOfFirstLending: "Date of First Lending",
     dateOfSecondLending: "Date of Second Lending",
-    currentLimit: "Current Limit",
-    currentGrading: "Current Grading",
-    lapsReffNo: "LAPS Reference No",
+    currentLimit: "Current CC Limit of SHG",
+    currentGrading: "Current Grading of SHG",
+    loanScheme: "Loan Scheme",
     applicationDate: "Application Date",
     loanAmount: "Loan Amount",
     loanPurpose: "Loan Purpose",
     tenureMonths: "Tenure (Months)",
-    repoRate: "Repo Rate",
+    repoMclr: "Repo/MCLR Rate",
     sanctionDate: "Sanction Date",
     unitVisitDate: "Unit Visit Date",
+    cif:"CIF",
+    neighbour:"Neighbour",
   };
 
-  const handleSubmit = async () => {
-    // Because we sync on every change, formData should already have the latest values.
-    const finalFormData = { ...formData };
 
-    const requiredFields = Object.keys(fieldLabels);
-    const emptyFields = requiredFields.filter(
-      (key) =>
-        !finalFormData[key] || finalFormData[key].toString().trim() === ""
+const handleSubmit = async () => {
+  const finalFormData = { ...formData };
+
+  // Define sections and their fields
+  const sections = {
+    "Borrower's Profile": [
+      "customerName", "spouseFather", "villageCityResidence", "po", "ps", "district",
+      "state", "pin", "dob", "qualification", "email", "contactNo", "aadhar", "udyamRegnNo", "pan",
+      "cibilScore", "customerSince", "sbAccount", "cif", "neighbour"
+    ],
+    "Business Details": [
+      "constitution","firmName","activity","establishedOn","tradeLicenseNo","registeredUnder",
+      "experienceYears","villageCityBusiness","poBusiness","noOfEmployees","premisesOccupancy"
+    ],
+    "Financial Details": [
+      "cashAndBankBalance","lipGoldNscOtherInvestment","landValue","buildingValue","plantMachineryFurniture",
+      "currentStock","debtors","lastYearSales","lastYearGrossProfit","lastYearNetProfit","lastYearCapital"
+    ],
+    "SHG Group Details": [
+      "shgGroupName","shgGroupAddress","nrlmCode","noOfMembers","dateOfFormation",
+      "shgSbAccount","shgCcAccount","dateOfFirstLending","dateOfSecondLending",
+      "currentLimit","currentGrading"
+    ],
+    "Loan Details": [
+      "loanScheme","applicationDate","loanAmount","loanPurpose","articles","articlesPrice",
+      "tenureMonths","repoMclr","sanctionDate","unitVisitDate"
+    ],
+  };
+
+  const errorsBySection = {};
+
+  // Check empty fields
+  for (const [section, fields] of Object.entries(sections)) {
+    const missing = fields.filter(
+      (key) => !finalFormData[key] || finalFormData[key].toString().trim() === ""
     );
-
-    if (emptyFields.length > 0) {
-      const missingLabels = emptyFields.map((k) => fieldLabels[k]);
-      alert(
-        `Please fill all required fields. Missing: ${missingLabels.join(", ")}`
-      );
-      return;
+    if (missing.length > 0) {
+      errorsBySection[section] = missing.map((k) => fieldLabels[k]);
     }
+  }
 
-    try {
-      setLoading(true); // ✅ Start loader
-      const dataToSend = {
-        user_data: user,
-        sakhi_data: finalFormData,
-      };
-      const res = await axios.post(
-        `${backendUrl}/loan/sakhi-booklet`,
-        dataToSend
-      );
-      navigate("/preview", { state: { htmlContent: res.data } });
-    } catch (err) {
-      console.error(err);
-      toast.error("Error submitting data. Please try again.");
-    } finally {
-      setLoading(false); // ✅ Stop loader
+  // Custom rules
+  if (finalFormData.tenureMonths && Number(finalFormData.tenureMonths) < 13) {
+    errorsBySection["Loan Details"] = errorsBySection["Loan Details"] || [];
+    errorsBySection["Loan Details"].push("Tenure (Months) should be greater than 12");
+  }
+
+  const appDate = finalFormData.applicationDate ? new Date(finalFormData.applicationDate) : null;
+  const sanctionDate = finalFormData.sanctionDate ? new Date(finalFormData.sanctionDate) : null;
+  if (appDate && sanctionDate && appDate > sanctionDate) {
+    errorsBySection["Loan Details"] = errorsBySection["Loan Details"] || [];
+    errorsBySection["Loan Details"].push("Sanction Date should not be before Application Date");
+  }
+
+  // Invalid date check
+  for (let key of ["dob","customerSince","establishedOn","dateOfFormation","dateOfFirstLending","dateOfSecondLending","applicationDate","sanctionDate","unitVisitDate"]) {
+    if (finalFormData[key] && isNaN(new Date(finalFormData[key]).getTime())) {
+      const section = Object.keys(sections).find((s) => sections[s].includes(key));
+      errorsBySection[section] = errorsBySection[section] || [];
+      errorsBySection[section].push(`${fieldLabels[key]} is not a valid date`);
     }
-  };
+  }
+
+  const hasErrors = Object.keys(errorsBySection).length > 0;
+  if (hasErrors) {
+    // Flatten errors for modal but keep section info
+    const formattedErrors = [];
+    for (const [section, errs] of Object.entries(errorsBySection)) {
+      errs.forEach((e) => formattedErrors.push(`${section}: ${e}`));
+    }
+    setMissingFields(formattedErrors);
+    setShowErrorModal(true);
+    return;
+  }
+
+  try {
+    setLoading(true);
+    const dataToSend = { user_data: user, sakhi_data: finalFormData };
+    const res = await axios.post(`${backendUrl}/loan/sakhi-booklet`, dataToSend);
+    navigate("/preview", { state: { htmlContent: res.data } });
+  } catch (err) {
+    console.error(err);
+    toast.error("Error submitting data. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   // --- Persist to localStorage whenever data changes ---
   useEffect(() => {
@@ -140,14 +201,15 @@ const SAKHILoan = () => {
   }, [user, formData]);
 
   // --- Clear form ---
-  const handleClear = (e) => {
-    e.preventDefault();
-    if (window.confirm("Are you sure you want to clear the form?")) {
-      localStorage.removeItem("sakhi_booklet_data");
+  const handleClear = () => {
+  setShowResetModal(true); // ✅ Open modal instead of confirm
+};
 
-      setFormData({});
-    }
-  };
+const confirmClear = () => {
+  localStorage.removeItem("sakhi_booklet_data");
+  setFormData({});
+  setShowResetModal(false);
+};
 
   const handleJSONUpload = (file) => {
     if (!file) return;
@@ -275,7 +337,46 @@ const SAKHILoan = () => {
           )}
         </div>
       </div>
+      {/* ✅ Error Modal */}
+   {showErrorModal && (
+  <dialog open className="modal">
+    <div className="modal-box">
+      <h3 className="font-bold text-lg text-error">Missing Fields</h3>
+      <p className="py-2">Please fill all required fields:</p>
+      <ol className="list-decimal list-inside space-y-1">
+        {missingFields.map((field, idx) => (
+          <li key={idx}>{field}</li>
+        ))}
+      </ol>
+      <div className="modal-action">
+        <button className="btn" onClick={() => setShowErrorModal(false)}>
+          OK
+        </button>
+      </div>
     </div>
+  </dialog>
+)}
+
+    {/* ✅ Reset Confirmation Modal */}
+    {showResetModal && (
+      <dialog open className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Confirm Reset</h3>
+          <p className="py-4">Are you sure you want to clear the form?</p>
+          <div className="modal-action">
+            <button className="btn btn-error" onClick={confirmClear}>
+              Yes, Clear
+            </button>
+            <button className="btn" onClick={() => setShowResetModal(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      </dialog>
+    )}
+    </div>
+
+    
   );
 };
 
@@ -969,28 +1070,28 @@ const StepShg = ({ data, updateForm, onNext, onBack }) => {
 const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
   // Keep a small local copy for immediate fields but sync on every change
   const [local, setLocal] = useState({
-    lapsReffNo: data.lapsReffNo || "",
+    loanScheme: data.loanScheme || "",
     applicationDate: data.applicationDate || "",
     loanAmount: data.loanAmount || "",
     loanPurpose: data.loanPurpose || "",
     articles: data.articles || "",
     articlesPrice: data.articlesPrice || "",
     tenureMonths: data.tenureMonths || "",
-    repoRate: data.repoRate || "",
+    repoMclr: data.repoMclr || "",
     sanctionDate: data.sanctionDate || "",
     unitVisitDate: data.unitVisitDate || "",
   });
 
   useEffect(() => {
     setLocal({
-      lapsReffNo: data.lapsReffNo || "",
+      loanScheme: data.loanScheme || "",
       applicationDate: data.applicationDate || "",
       loanAmount: data.loanAmount || "",
       loanPurpose: data.loanPurpose || "",
       articles: data.articles || "",
       articlesPrice: data.articlesPrice || "",
       tenureMonths: data.tenureMonths || "",
-      repoRate: data.repoRate || "",
+      repoMclr: data.repoMclr || "",
       sanctionDate: data.sanctionDate || "",
       unitVisitDate: data.unitVisitDate || "",
     });
@@ -1009,11 +1110,12 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
     <div>
       <h2 className="text-2xl font-bold mb-4">Loan Details</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <Input
-          label="LAPS Reff No."
-          name="lapsReffNo"
+        <Select
+          label="Loan Scheme"
+          name="loanScheme"
           type="text"
-          value={local.lapsReffNo}
+          options={["IND-MSME-SAKHI","IND-LAKHPATI-DIDI"]}
+          value={local.loanScheme}
           onChange={handle}
         />
         <Input
@@ -1085,10 +1187,10 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
           onChange={handle}
         />
         <Input
-          label="Repo Rate (%)"
-          name="repoRate"
+         label={local.loanScheme === "IND-LAKHPATI-DIDI" ? "MCLR (%)" : "Repo Rate (%)"}
+          name="repoMclr"
           type="number"
-          value={local.repoRate}
+          value={local.repoMclr}
           onChange={handle}
         />
       </div>
