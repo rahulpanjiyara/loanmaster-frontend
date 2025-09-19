@@ -48,7 +48,7 @@ export default function SelectLoan() {
 
    if (user?.userType === "admin") {
     loans.push({
-      title: "MSME Sakhi Loan",
+      title: "IND-MSME-SAKHI & IND-LAKHPATI-DIDI Loan",
       desc: "Business Loan for SHG members to start or expand their ventures",
       path: "/sakhiloan",
     });
