@@ -15,9 +15,9 @@ const SAKHILoan = () => {
   const [loading, setLoading] = useState(false);
   // Add state for error modal
 
-const [showErrorModal, setShowErrorModal] = useState(false);
-const [showResetModal, setShowResetModal] = useState(false);
-const [missingFields, setMissingFields] = useState([]);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [missingFields, setMissingFields] = useState([]);
 
   // Load saved data from localStorage
   const savedData =
@@ -96,100 +96,174 @@ const [missingFields, setMissingFields] = useState([]);
     repoMclr: "Repo/MCLR Rate",
     sanctionDate: "Sanction Date",
     unitVisitDate: "Unit Visit Date",
-    cif:"CIF",
-    neighbour:"Neighbour",
+    cif: "CIF",
+    neighbour: "Neighbour",
   };
 
+  const handleSubmit = async () => {
+    const finalFormData = { ...formData };
 
-const handleSubmit = async () => {
-  const finalFormData = { ...formData };
+    // Define sections and their fields
+    const sections = {
+      "Borrower's Profile": [
+        "customerName",
+        "spouseFather",
+        "villageCityResidence",
+        "po",
+        "ps",
+        "district",
+        "state",
+        "pin",
+        "dob",
+        "qualification",
+        "email",
+        "contactNo",
+        "aadhar",
+        "udyamRegnNo",
+        "pan",
+        "cibilScore",
+        "customerSince",
+        "sbAccount",
+        "cif",
+        "neighbour",
+      ],
+      "Business Details": [
+        "constitution",
+        "firmName",
+        "activity",
+        "establishedOn",
+        "tradeLicenseNo",
+        "registeredUnder",
+        "experienceYears",
+        "villageCityBusiness",
+        "poBusiness",
+        "noOfEmployees",
+        "premisesOccupancy",
+      ],
+      "Financial Details": [
+        "cashAndBankBalance",
+        "lipGoldNscOtherInvestment",
+        "landValue",
+        "buildingValue",
+        "plantMachineryFurniture",
+        "currentStock",
+        "debtors",
+        "lastYearSales",
+        "lastYearGrossProfit",
+        "lastYearNetProfit",
+        "lastYearCapital",
+      ],
+      "SHG Group Details": [
+        "shgGroupName",
+        "shgGroupAddress",
+        "nrlmCode",
+        "noOfMembers",
+        "dateOfFormation",
+        "shgSbAccount",
+        "shgCcAccount",
+        "dateOfFirstLending",
+        "dateOfSecondLending",
+        "currentLimit",
+        "currentGrading",
+      ],
+      "Loan Details": [
+        "loanScheme",
+        "applicationDate",
+        "loanAmount",
+        "loanPurpose",
+        "articles",
+        "articlesPrice",
+        "tenureMonths",
+        "repoMclr",
+        "sanctionDate",
+        "unitVisitDate",
+      ],
+    };
 
-  // Define sections and their fields
-  const sections = {
-    "Borrower's Profile": [
-      "customerName", "spouseFather", "villageCityResidence", "po", "ps", "district",
-      "state", "pin", "dob", "qualification", "email", "contactNo", "aadhar", "udyamRegnNo", "pan",
-      "cibilScore", "customerSince", "sbAccount", "cif", "neighbour"
-    ],
-    "Business Details": [
-      "constitution","firmName","activity","establishedOn","tradeLicenseNo","registeredUnder",
-      "experienceYears","villageCityBusiness","poBusiness","noOfEmployees","premisesOccupancy"
-    ],
-    "Financial Details": [
-      "cashAndBankBalance","lipGoldNscOtherInvestment","landValue","buildingValue","plantMachineryFurniture",
-      "currentStock","debtors","lastYearSales","lastYearGrossProfit","lastYearNetProfit","lastYearCapital"
-    ],
-    "SHG Group Details": [
-      "shgGroupName","shgGroupAddress","nrlmCode","noOfMembers","dateOfFormation",
-      "shgSbAccount","shgCcAccount","dateOfFirstLending","dateOfSecondLending",
-      "currentLimit","currentGrading"
-    ],
-    "Loan Details": [
-      "loanScheme","applicationDate","loanAmount","loanPurpose","articles","articlesPrice",
-      "tenureMonths","repoMclr","sanctionDate","unitVisitDate"
-    ],
+    const errorsBySection = {};
+
+    // Check empty fields
+    for (const [section, fields] of Object.entries(sections)) {
+      const missing = fields.filter(
+        (key) =>
+          !finalFormData[key] || finalFormData[key].toString().trim() === ""
+      );
+      if (missing.length > 0) {
+        errorsBySection[section] = missing.map((k) => fieldLabels[k]);
+      }
+    }
+
+    // Custom rules
+    if (finalFormData.tenureMonths && Number(finalFormData.tenureMonths) < 13) {
+      errorsBySection["Loan Details"] = errorsBySection["Loan Details"] || [];
+      errorsBySection["Loan Details"].push(
+        "Tenure (Months) should be greater than 12"
+      );
+    }
+
+    const appDate = finalFormData.applicationDate
+      ? new Date(finalFormData.applicationDate)
+      : null;
+    const sanctionDate = finalFormData.sanctionDate
+      ? new Date(finalFormData.sanctionDate)
+      : null;
+    if (appDate && sanctionDate && appDate > sanctionDate) {
+      errorsBySection["Loan Details"] = errorsBySection["Loan Details"] || [];
+      errorsBySection["Loan Details"].push(
+        "Sanction Date should not be before Application Date"
+      );
+    }
+
+    // Invalid date check
+    for (let key of [
+      "dob",
+      "customerSince",
+      "establishedOn",
+      "dateOfFormation",
+      "dateOfFirstLending",
+      "dateOfSecondLending",
+      "applicationDate",
+      "sanctionDate",
+      "unitVisitDate",
+    ]) {
+      if (finalFormData[key] && isNaN(new Date(finalFormData[key]).getTime())) {
+        const section = Object.keys(sections).find((s) =>
+          sections[s].includes(key)
+        );
+        errorsBySection[section] = errorsBySection[section] || [];
+        errorsBySection[section].push(
+          `${fieldLabels[key]} is not a valid date`
+        );
+      }
+    }
+
+    const hasErrors = Object.keys(errorsBySection).length > 0;
+    if (hasErrors) {
+      // Flatten errors for modal but keep section info
+      const formattedErrors = [];
+      for (const [section, errs] of Object.entries(errorsBySection)) {
+        errs.forEach((e) => formattedErrors.push(`${section}: ${e}`));
+      }
+      setMissingFields(formattedErrors);
+      setShowErrorModal(true);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const dataToSend = { user_data: user, sakhi_data: finalFormData };
+      const res = await axios.post(
+        `${backendUrl}/loan/sakhi-booklet`,
+        dataToSend
+      );
+      navigate("/preview", { state: { htmlContent: res.data } });
+    } catch (err) {
+      console.error(err);
+      toast.error("Error submitting data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const errorsBySection = {};
-
-  // Check empty fields
-  for (const [section, fields] of Object.entries(sections)) {
-    const missing = fields.filter(
-      (key) => !finalFormData[key] || finalFormData[key].toString().trim() === ""
-    );
-    if (missing.length > 0) {
-      errorsBySection[section] = missing.map((k) => fieldLabels[k]);
-    }
-  }
-
-  // Custom rules
-  if (finalFormData.tenureMonths && Number(finalFormData.tenureMonths) < 13) {
-    errorsBySection["Loan Details"] = errorsBySection["Loan Details"] || [];
-    errorsBySection["Loan Details"].push("Tenure (Months) should be greater than 12");
-  }
-
-  const appDate = finalFormData.applicationDate ? new Date(finalFormData.applicationDate) : null;
-  const sanctionDate = finalFormData.sanctionDate ? new Date(finalFormData.sanctionDate) : null;
-  if (appDate && sanctionDate && appDate > sanctionDate) {
-    errorsBySection["Loan Details"] = errorsBySection["Loan Details"] || [];
-    errorsBySection["Loan Details"].push("Sanction Date should not be before Application Date");
-  }
-
-  // Invalid date check
-  for (let key of ["dob","customerSince","establishedOn","dateOfFormation","dateOfFirstLending","dateOfSecondLending","applicationDate","sanctionDate","unitVisitDate"]) {
-    if (finalFormData[key] && isNaN(new Date(finalFormData[key]).getTime())) {
-      const section = Object.keys(sections).find((s) => sections[s].includes(key));
-      errorsBySection[section] = errorsBySection[section] || [];
-      errorsBySection[section].push(`${fieldLabels[key]} is not a valid date`);
-    }
-  }
-
-  const hasErrors = Object.keys(errorsBySection).length > 0;
-  if (hasErrors) {
-    // Flatten errors for modal but keep section info
-    const formattedErrors = [];
-    for (const [section, errs] of Object.entries(errorsBySection)) {
-      errs.forEach((e) => formattedErrors.push(`${section}: ${e}`));
-    }
-    setMissingFields(formattedErrors);
-    setShowErrorModal(true);
-    return;
-  }
-
-  try {
-    setLoading(true);
-    const dataToSend = { user_data: user, sakhi_data: finalFormData };
-    const res = await axios.post(`${backendUrl}/loan/sakhi-booklet`, dataToSend);
-    navigate("/preview", { state: { htmlContent: res.data } });
-  } catch (err) {
-    console.error(err);
-    toast.error("Error submitting data. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
 
   // --- Persist to localStorage whenever data changes ---
   useEffect(() => {
@@ -202,14 +276,14 @@ const handleSubmit = async () => {
 
   // --- Clear form ---
   const handleClear = () => {
-  setShowResetModal(true); // ✅ Open modal instead of confirm
-};
+    setShowResetModal(true); // ✅ Open modal instead of confirm
+  };
 
-const confirmClear = () => {
-  localStorage.removeItem("sakhi_booklet_data");
-  setFormData({});
-  setShowResetModal(false);
-};
+  const confirmClear = () => {
+    localStorage.removeItem("sakhi_booklet_data");
+    setFormData({});
+    setShowResetModal(false);
+  };
 
   const handleJSONUpload = (file) => {
     if (!file) return;
@@ -338,45 +412,43 @@ const confirmClear = () => {
         </div>
       </div>
       {/* ✅ Error Modal */}
-   {showErrorModal && (
-  <dialog open className="modal">
-    <div className="modal-box">
-      <h3 className="font-bold text-lg text-error">Missing Fields</h3>
-      <p className="py-2">Please fill all required fields:</p>
-      <ol className="list-decimal list-inside space-y-1">
-        {missingFields.map((field, idx) => (
-          <li key={idx}>{field}</li>
-        ))}
-      </ol>
-      <div className="modal-action">
-        <button className="btn" onClick={() => setShowErrorModal(false)}>
-          OK
-        </button>
-      </div>
-    </div>
-  </dialog>
-)}
-
-    {/* ✅ Reset Confirmation Modal */}
-    {showResetModal && (
-      <dialog open className="modal">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg">Confirm Reset</h3>
-          <p className="py-4">Are you sure you want to clear the form?</p>
-          <div className="modal-action">
-            <button className="btn btn-error" onClick={confirmClear}>
-              Yes, Clear
-            </button>
-            <button className="btn" onClick={() => setShowResetModal(false)}>
-              Cancel
-            </button>
+      {showErrorModal && (
+        <dialog open className="modal">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg text-error">Missing Fields</h3>
+            <p className="py-2">Please fill all required fields:</p>
+            <ol className="list-decimal list-inside space-y-1">
+              {missingFields.map((field, idx) => (
+                <li key={idx}>{field}</li>
+              ))}
+            </ol>
+            <div className="modal-action">
+              <button className="btn" onClick={() => setShowErrorModal(false)}>
+                OK
+              </button>
+            </div>
           </div>
-        </div>
-      </dialog>
-    )}
-    </div>
+        </dialog>
+      )}
 
-    
+      {/* ✅ Reset Confirmation Modal */}
+      {showResetModal && (
+        <dialog open className="modal">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Confirm Reset</h3>
+            <p className="py-4">Are you sure you want to clear the form?</p>
+            <div className="modal-action">
+              <button className="btn btn-error" onClick={confirmClear}>
+                Yes, Clear
+              </button>
+              <button className="btn" onClick={() => setShowResetModal(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
+    </div>
   );
 };
 
@@ -1082,6 +1154,66 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
     unitVisitDate: data.unitVisitDate || "",
   });
 
+  // ✅ Loan Purpose options mapping
+  const loanPurposeOptions = {
+    "IND-LAKHPATI-DIDI": [
+      "Creation of Live Stocks",
+      "Purchase of Farm Machinery",
+      "Fisheries Development",
+      "Mushroom Cultivation",
+      "Crop Cultivation",
+      "Horticulture Development",
+      "Sericulture Activity",
+      "Floriculture Development",
+      "Medicinal & Aromatic Plant Cultivation",
+      "Bee Keeping (Apiculture)",
+      "Agri-Processing & Value Addition",
+      "Agri-Logistics",
+      // "Crop cultivation (food grains, cereals, pulses, oilseeds, etc.)",
+      // "Horticulture (fruits, vegetables, flowers, spices, plantation crops)",
+      // "Sericulture (silk production)",
+      // "Floriculture",
+      // "Medicinal & aromatic plants cultivation",
+      // "Seed production",
+      // "Dairy farming",
+      // "Cattle rearing",
+      // "Goat farming",
+      // "Sheep rearing",
+      // "Piggery",
+      // "Poultry farming",
+      // "Duck farming",
+      // "Inland fisheries",
+      // "Marine fisheries",
+      // "Shrimp farming",
+      // "Prawn culture",
+      // "Farm forestry",
+      // "Social forestry",
+      // "Bamboo cultivation",
+      // "Bee Keeping (Apiculture)",
+      // "Mushroom Cultivation",
+      // "Rice mills",
+      // "Flour mills",
+      // "Cold storage",
+      // "Grading",
+      // "Packaging",
+      // "Food processing units directly linked to farmers",
+      // "Custom Hiring Centres – Tractors, tillers, harvesters and other farm equipment services",
+      // "Warehousing",
+      // "Transport",
+      // "Cold chain",
+      // "Godowns",
+      // "Pack houses",
+    ],
+    "IND-MSME-SAKHI": [
+      "Stock Creation",
+      "Purchase of Machinery",
+      "Purchase of Commercial Vehicle",
+      "Renovation of Shop",
+      "Purchase of Stocks & Machinery",
+      "Shop Renovation & Stock Creation",
+    ],
+  };
+
   useEffect(() => {
     setLocal({
       loanScheme: data.loanScheme || "",
@@ -1106,6 +1238,9 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
     });
   };
 
+  // ✅ Purposes as per scheme
+  const currentPurposes = loanPurposeOptions[local.loanScheme] || [];
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Loan Details</h2>
@@ -1114,7 +1249,7 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
           label="Loan Scheme"
           name="loanScheme"
           type="text"
-          options={["IND-MSME-SAKHI","IND-LAKHPATI-DIDI"]}
+          options={["IND-MSME-SAKHI", "IND-LAKHPATI-DIDI"]}
           value={local.loanScheme}
           onChange={handle}
         />
@@ -1137,14 +1272,7 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
           name="loanPurpose"
           value={local.loanPurpose}
           onChange={handle}
-          options={[
-            "Stock Creation",
-            "Purchase of Machinery",
-            "Purchase of Commercial Vehicle",
-            "Renovation of Shop",
-            "Purchase of Stocks & Machinery",
-            "Shop Renovation & Stock Creation",
-          ]}
+          options={currentPurposes}
         />
         <Input
           type="text"
@@ -1187,7 +1315,11 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
           onChange={handle}
         />
         <Input
-         label={local.loanScheme === "IND-LAKHPATI-DIDI" ? "MCLR (%)" : "Repo Rate (%)"}
+          label={
+            local.loanScheme === "IND-LAKHPATI-DIDI"
+              ? "MCLR (%)"
+              : "Repo Rate (%)"
+          }
           name="repoMclr"
           type="number"
           value={local.repoMclr}
