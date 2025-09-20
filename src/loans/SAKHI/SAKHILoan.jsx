@@ -547,7 +547,7 @@ const StepBorrower = ({ data, updateForm, onNext }) => {
           ["Qualification", "qualification", "text"],
           ["E-mail ID", "email", "email"],
           ["Mobile No.", "contactNo", "number"],
-          ["Aadhar", "aadhar", "number"],
+          ["Aadhar No.", "aadhar", "text"],
           ["UDHYAM Regn. No.", "udyamRegnNo", "text"],
           ["PAN", "pan", "text"],
           ["CIBIL Score", "cibilScore", "number"],
