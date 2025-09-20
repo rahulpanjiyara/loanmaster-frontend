@@ -49,7 +49,7 @@ const SAKHILoan = () => {
     dob: "Date of Birth",
     qualification: "Qualification",
     email: "Email",
-    contactNo: "Contact No",
+    contactNo: "Mobile No.",
     aadhar: "Aadhar Number",
     udyamRegnNo: "Udyam Registration No",
     pan: "PAN",
@@ -116,7 +116,7 @@ const SAKHILoan = () => {
         "pin",
         "dob",
         "qualification",
-        "email",
+        //"email",
         "contactNo",
         "aadhar",
         "udyamRegnNo",
@@ -321,7 +321,7 @@ const SAKHILoan = () => {
       <div className="w-full max-w-5xl h-[700px] bg-base-100 shadow-xl rounded-lg p-6 flex flex-col">
         {/* JSON Upload */}
         <h2 className="text-xl font-bold text-center text-primary">
-          MSME SAKHI LOAN
+          IND MSME SAKHI & IND LAKHPATI DIDI
         </h2>
         <div className="mb-4 join">
           <label className="btn btn-xs join-item">
