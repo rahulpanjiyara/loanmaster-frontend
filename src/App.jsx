@@ -46,7 +46,7 @@ const App = () => {
           <Route path="/selectloan" element={<SelectLoan />} />
           <Route path="/shgloan" element={<SHGLoan />} />
           <Route path="/lodloan" element={<LODLoan />} />
-          <Route path="/sakhiloan" element={<AdminRoute><SAKHILoan /></AdminRoute>} />
+          <Route path="/sakhiloan" element={<SAKHILoan />} />
           <Route path="/preview" element={<Preview />} />
         </Route>
       </Routes>

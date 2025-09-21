@@ -10,7 +10,7 @@ export default function SelectLoan() {
   useEffect(() => {
     if (user) {
       if (
-        // !user.zoName ||
+        !user.zoName ||
         !user.brName ||
         !user.brPlace ||
         !user.brCode ||
@@ -35,6 +35,16 @@ export default function SelectLoan() {
       desc: "Need money urgently, without premature withdrwal of FD?",
       path: "/lodloan",
     },
+    {
+      title: "Ind MSME Sakhi Loan",
+      desc: "For MSME related busines activity of SHG member",
+      path: "/sakhiloan",
+    },
+    {
+      title: "Ind Lakhpati Didi Loan",
+      desc: "For Agri and Allied Activity of SHG member",
+      path: "/sakhiloan",
+    }
     // {
     //   title: "MSME Sakhi Loan",
     //   desc: "Business Loan for SHG members to start or expand their ventures",
@@ -46,18 +56,18 @@ export default function SelectLoan() {
     // { title: "Business Loan", desc: "Grow your business with flexible terms" },
   ];
 
-   if (user?.userType === "admin") {
-    loans.push({
-      title: "Ind MSME Sakhi Loan",
-      desc: "For MSME related busines activity of SHG member",
-      path: "/sakhiloan",
-    });
-    loans.push({
-      title: "Ind Lakhpati Didi Loan",
-      desc: "For Agri and Allied Activity of SHG member",
-      path: "/sakhiloan",
-    });
-  }
+  //  if (user?.userType === "admin") {
+  //   loans.push({
+  //     title: "Ind MSME Sakhi Loan",
+  //     desc: "For MSME related busines activity of SHG member",
+  //     path: "/sakhiloan",
+  //   });
+  //   loans.push({
+  //     title: "Ind Lakhpati Didi Loan",
+  //     desc: "For Agri and Allied Activity of SHG member",
+  //     path: "/sakhiloan",
+  //   });
+  // }
 
   if (showWarning) {
     return (

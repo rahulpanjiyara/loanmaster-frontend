@@ -1153,6 +1153,8 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
     sanctionDate: data.sanctionDate || "",
     unitVisitDate: data.unitVisitDate || "",
   });
+  const [showOtherModal, setShowOtherModal] = useState(false);
+  const [otherPurpose, setOtherPurpose] = useState("");
 
   // ✅ Loan Purpose options mapping
   const loanPurposeOptions = {
@@ -1160,57 +1162,19 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
       "Creation of Live Stocks",
       "Purchase of Farm Machinery",
       "Fisheries Development",
-      "Mushroom Cultivation",
-      "Crop Cultivation",
       "Horticulture Development",
-      "Sericulture Activity",
       "Floriculture Development",
-      "Medicinal & Aromatic Plant Cultivation",
-      "Bee Keeping (Apiculture)",
-      "Agri-Processing & Value Addition",
-      "Agri-Logistics",
-      // "Crop cultivation (food grains, cereals, pulses, oilseeds, etc.)",
-      // "Horticulture (fruits, vegetables, flowers, spices, plantation crops)",
-      // "Sericulture (silk production)",
-      // "Floriculture",
-      // "Medicinal & aromatic plants cultivation",
-      // "Seed production",
-      // "Dairy farming",
-      // "Cattle rearing",
-      // "Goat farming",
-      // "Sheep rearing",
-      // "Piggery",
-      // "Poultry farming",
-      // "Duck farming",
-      // "Inland fisheries",
-      // "Marine fisheries",
-      // "Shrimp farming",
-      // "Prawn culture",
-      // "Farm forestry",
-      // "Social forestry",
-      // "Bamboo cultivation",
-      // "Bee Keeping (Apiculture)",
-      // "Mushroom Cultivation",
-      // "Rice mills",
-      // "Flour mills",
-      // "Cold storage",
-      // "Grading",
-      // "Packaging",
-      // "Food processing units directly linked to farmers",
-      // "Custom Hiring Centres – Tractors, tillers, harvesters and other farm equipment services",
-      // "Warehousing",
-      // "Transport",
-      // "Cold chain",
-      // "Godowns",
-      // "Pack houses",
+      "Apiculture Development",
+      "Others",
+      
     ],
     "IND-MSME-SAKHI": [
       "Stock Creation",
       "Purchase of Machinery",
       "Purchase of Commercial Vehicle",
-      "Renovation of Shop",
       "Purchase of Stocks & Machinery",
-      "Shop Renovation & Stock Creation",
+      "Others",
+      
     ],
   };
 
@@ -1229,8 +1193,16 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
     });
   }, [data]);
 
+  
+
   const handle = (e) => {
     const { name, value } = e.target;
+
+     // ✅ If user selects "Others"
+    if (name === "loanPurpose" && value === "Others") {
+      setShowOtherModal(true);
+      return;
+    }
     setLocal((p) => {
       const next = { ...p, [name]: value };
       updateForm({ [name]: value });
@@ -1238,8 +1210,28 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
     });
   };
 
+  const handleOtherSubmit = () => {
+    setLocal((p) => {
+      const next = { ...p, loanPurpose: otherPurpose };
+      updateForm(next);
+      return next;
+    });
+    setShowOtherModal(false);
+  };
+
   // ✅ Purposes as per scheme
-  const currentPurposes = loanPurposeOptions[local.loanScheme] || [];
+  const currentPurposes = loanPurposeOptions[local.loanScheme] || ["Others"];
+
+  // Merge typed custom value if it’s not in the list
+  const purposeOptions = [
+    ...currentPurposes,
+    ...(local.loanPurpose &&
+    !currentPurposes.includes(local.loanPurpose)
+      ? [local.loanPurpose]
+      : []),
+  ];
+
+  
 
   return (
     <div>
@@ -1249,7 +1241,7 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
           label="Loan Scheme"
           name="loanScheme"
           type="text"
-          options={["IND-MSME-SAKHI", "IND-LAKHPATI-DIDI"]}
+          options={["IND-MSME-SAKHI", "IND-LAKHPATI-DIDI",]}
           value={local.loanScheme}
           onChange={handle}
         />
@@ -1272,7 +1264,7 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
           name="loanPurpose"
           value={local.loanPurpose}
           onChange={handle}
-          options={currentPurposes}
+          options={purposeOptions}
         />
         <Input
           type="text"
@@ -1347,7 +1339,41 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
           </button>
         </div>
       </div>
+       {/* ✅ Other Purpose Modal */}
+      {showOtherModal && (
+        <dialog open className="modal">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Specify Loan Purpose</h3>
+            <input
+              type="text"
+              className="input input-bordered w-full mt-2"
+              placeholder="Enter loan purpose"
+              value={otherPurpose}
+              onChange={(e) => setOtherPurpose(e.target.value)}
+            />
+            <div className="modal-action">
+              <button
+                className="btn btn-primary"
+                onClick={handleOtherSubmit}
+                disabled={!otherPurpose.trim()}
+              >
+                Save
+              </button>
+              <button
+                className="btn"
+                onClick={() => {
+                  setShowOtherModal(false);
+                  setOtherPurpose("");
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
     </div>
+    
   );
 };
 
