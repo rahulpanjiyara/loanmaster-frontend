@@ -129,7 +129,7 @@ const SAKHILoan = () => {
       ],
       "Business Details": [
         "constitution",
-        "firmName",
+        //"firmName",
         "activity",
         "establishedOn",
         "tradeLicenseNo",
@@ -192,6 +192,17 @@ const SAKHILoan = () => {
         errorsBySection[section] = missing.map((k) => fieldLabels[k]);
       }
     }
+
+    // Custom Firm Name Validation
+  if (
+    finalFormData.constitution &&
+    finalFormData.constitution !== "Individual" &&
+    (!finalFormData.firmName || finalFormData.firmName.trim() === "")
+  ) {
+    errorsBySection["Business Details"] =
+      errorsBySection["Business Details"] || [];
+    errorsBySection["Business Details"].push("Firm Name is required");
+  }
 
     // Custom rules
     if (finalFormData.tenureMonths && Number(finalFormData.tenureMonths) < 13) {
@@ -652,6 +663,10 @@ const StepBusiness = ({ data, updateForm, onNext, onBack }) => {
     const { name, value } = e.target;
     setLocal((p) => {
       const next = { ...p, [name]: value };
+      // If constitution = Individual, clear firmName
+      if (name === "constitution" && value === "Individual") {
+        next.firmName = "";
+      }
       updateForm(next);
       return next;
     });
@@ -668,12 +683,14 @@ const StepBusiness = ({ data, updateForm, onNext, onBack }) => {
           onChange={handle}
           options={["Proprietorship", "Individual"]}
         />
-        <Input
-          label="Firm Name"
-          name="firmName"
-          value={local.firmName}
-          onChange={handle}
-        />
+        {local.constitution !== "Individual" && (
+          <Input
+            label="Firm Name"
+            name="firmName"
+            value={local.firmName}
+            onChange={handle}
+          />
+        )}
         <Input
           label="Activity"
           name="activity"
@@ -1166,7 +1183,6 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
       "Floriculture Development",
       "Apiculture Development",
       "Others",
-      
     ],
     "IND-MSME-SAKHI": [
       "Stock Creation",
@@ -1174,7 +1190,6 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
       "Purchase of Commercial Vehicle",
       "Purchase of Stocks & Machinery",
       "Others",
-      
     ],
   };
 
@@ -1193,12 +1208,10 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
     });
   }, [data]);
 
-  
-
   const handle = (e) => {
     const { name, value } = e.target;
 
-     // ✅ If user selects "Others"
+    // ✅ If user selects "Others"
     if (name === "loanPurpose" && value === "Others") {
       setShowOtherModal(true);
       return;
@@ -1225,13 +1238,10 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
   // Merge typed custom value if it’s not in the list
   const purposeOptions = [
     ...currentPurposes,
-    ...(local.loanPurpose &&
-    !currentPurposes.includes(local.loanPurpose)
+    ...(local.loanPurpose && !currentPurposes.includes(local.loanPurpose)
       ? [local.loanPurpose]
       : []),
   ];
-
-  
 
   return (
     <div>
@@ -1241,7 +1251,7 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
           label="Loan Scheme"
           name="loanScheme"
           type="text"
-          options={["IND-MSME-SAKHI", "IND-LAKHPATI-DIDI",]}
+          options={["IND-MSME-SAKHI", "IND-LAKHPATI-DIDI"]}
           value={local.loanScheme}
           onChange={handle}
         />
@@ -1339,7 +1349,7 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
           </button>
         </div>
       </div>
-       {/* ✅ Other Purpose Modal */}
+      {/* ✅ Other Purpose Modal */}
       {showOtherModal && (
         <dialog open className="modal">
           <div className="modal-box">
@@ -1373,7 +1383,6 @@ const StepLoan = ({ data, updateForm, onBack, onSubmit, loading }) => {
         </dialog>
       )}
     </div>
-    
   );
 };
 
